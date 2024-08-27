@@ -15,6 +15,7 @@ from .draw import DrawBest
 
 FISH = 0
 LXNS = 1
+PLATFORM_STR = ["水鱼查分器", "落雪咖啡屋"]
 
 
 async def compress_png(fp, output, force=True, quality=None):
@@ -123,9 +124,8 @@ async def handle_bind(message: Message):
         await message.reply(content="绑定失败，数据库操作出错。请稍后再试。")
         return
 
-    platform_str = ["水鱼查分器", "落雪咖啡屋"]
     await message.reply(
-        content=f"[{user_name}] 已经成功绑定到你的频道号了！查分平台为 [{platform_str[platform_id]}]。"
+        content=f"[{user_name}] 已经成功绑定到你的频道号了！查分平台为 [{PLATFORM_STR[platform_id]}]。"
     )
 
 
@@ -148,6 +148,7 @@ async def handle_b50(message: Message):
         avatar_url=message.author.avatar,
         api_secret=LXNS_API_SECRET,
     )
+    platform_str = ["水鱼查分器", "落雪咖啡屋"]
 
     try:
         if platform_id == FISH:
@@ -159,7 +160,7 @@ async def handle_b50(message: Message):
     except Exception as e:
         logger.error(f"获取查分器数据时出错: {e}")
         await message.reply(
-            content=f"获取数据时出错，请检查查分器网站的隐私设置，如果进一步遇到问题，请联系频道主。\n 查分器平台: {'水鱼查分器' if platform_id == FISH else '落雪咖啡屋'} 用户名: {username}"
+            content=f"获取数据时出错，请检查查分器网站的隐私设置，如果进一步遇到问题，请联系频道主。\n 查分器平台: {PLATFORM_STR[platform_id]} 用户名: {username}"
         )
         return
 
@@ -194,7 +195,7 @@ async def handle_b50(message: Message):
         file_image=compressed_image_path,  # Pass the compressed file path
     )
     await message.reply(
-        content=f"@{message.author.username} B50生成成功, 耗时 {generation_time:.2f} 秒。\n压缩比: {compression_ratio:.2f}%\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
+        content=f"@{message.author.username} B50生成成功[{PLATFORM_STR[platform_id]}], 耗时 {generation_time:.2f} 秒。\n压缩比: {compression_ratio:.2f}%\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
     )
 
 
