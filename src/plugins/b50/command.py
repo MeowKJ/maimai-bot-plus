@@ -79,7 +79,7 @@ async def handle_bind(message: Message):
     content = message.content.split("/bind")[1].strip()
     if not content:
         await message.reply(
-            """
+            content="""
             这里是bind指令的说明：
             /bind后面可以接上水鱼查分器的用户名或者是落雪咖啡屋绑定的QQ号。
             例如：/bind user 将绑定用户名 user。
