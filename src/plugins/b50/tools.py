@@ -43,10 +43,6 @@ async def compress_png(fp, output, force=True, quality=None):
 
     force_command = "-f" if force else ""
 
-    # 如果没有指定质量，默认使用 70-90 的范围
-    if quality is None:
-        quality = "70-90"
-
     quality_command = f"--quality {quality}"
 
     command = (

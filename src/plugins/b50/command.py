@@ -59,6 +59,8 @@ async def handle_bind(message: Message):
                 "\n\n🎀 绑定喜欢的音击小女孩!（隐藏功能）:\n"
                 "- 输入 `/bind @OngekiGirls show` 可以查看音击小女孩列表。\n"
                 "- 输入 `/bind @OngekiGirls 序号` 可以绑定你喜欢的音击小女孩。\n"
+                "  例如：`/bind @OngekiGirls 1`\n"
+                "序号0为不绑定, 序号1-17为对应的音击小女孩。\n"
                 "绑定的小女孩将会在你的 B50 中出现哦~"
             )
 
@@ -86,8 +88,8 @@ async def handle_bind(message: Message):
         try:
             girl_number = float(args)
 
-            # 检查是否为整数且在 1 到 17 之间
-            if girl_number.is_integer() and 1 <= int(girl_number) <= 17:
+            # 检查是否为整数且在 0 到 17 之间
+            if girl_number.is_integer() and 0 <= int(girl_number) <= 17:
                 girl_number = int(girl_number)
                 try:
                     update_user_favorite(user_id, girl_number)
