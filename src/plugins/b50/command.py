@@ -134,7 +134,9 @@ async def handle_b50(message: Message):
     try:
         username, platform_id, score = get_user_by_id(user_id)
     except Exception:
-        await message.reply(content="请先使用 /bind 指令绑定你的查分器账号。")
+        await message.reply(
+            content=f"@{message.author.username} 请先使用 /bind 指令绑定你的查分器账号。"
+        )
         return
 
     player = Player(
@@ -143,7 +145,6 @@ async def handle_b50(message: Message):
         avatar_url=message.author.avatar,
         api_secret=LXNS_API_SECRET,
     )
-    platform_str = ["水鱼查分器", "落雪咖啡屋"]
 
     try:
         if platform_id == FISH:
@@ -155,7 +156,12 @@ async def handle_b50(message: Message):
     except Exception as e:
         logger.error(f"获取查分器数据时出错: {e}")
         await message.reply(
-            content=f"获取数据时出错，请检查查分器网站的隐私设置，如果进一步遇到问题，请联系频道主。\n 查分器平台: {PLATFORM_STR[platform_id]} 用户名: {username}"
+            content=f"@{message.author.username} 获取数据时出错, 检查一下
+            \n1.用户名是否填错了
+            \n2.网站的隐私设置, 是否允许查分器访问
+            \n3.重试几次
+            \n如果进一步遇到问题, 请联系频道主。
+            \n查分器平台: {PLATFORM_STR[platform_id]} 用户名: {username}"
         )
         return
 
@@ -175,7 +181,9 @@ async def handle_b50(message: Message):
 
     except Exception as e:
         logger.error(f"绘制或压缩图片时出错: {e}")
-        await message.reply(content="处理图片时出错，请稍后再试。")
+        await message.reply(
+            content=f"@{message.author.username} 处理图片时出错, 如果多次出现错误, 请联系频道主。"
+        )
         return
 
     try:
