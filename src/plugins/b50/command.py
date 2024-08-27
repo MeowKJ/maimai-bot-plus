@@ -194,10 +194,16 @@ async def handle_b50(message: Message):
     )
 
 
+async def do_nothing(message: Message):
+    pass
+
+
 # 定义支持的指令及其处理函数（指令名应为小写）
 COMMANDS = {
     "bind": handle_bind,
     "b50": handle_b50,
+    "bindo": do_nothing,
+    "b50o": do_nothing,
 }
 
 # 默认大写的插件名
