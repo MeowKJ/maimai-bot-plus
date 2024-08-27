@@ -42,12 +42,12 @@ async def compress_png(fp, output, force=True, quality=None):
         raise FileNotFoundError(f"File not found: {fp}")
 
     force_command = "-f" if force else ""
-    quality_command = ""
 
-    if quality and isinstance(quality, int):
-        quality_command = f"--quality {quality}"
-    if quality and isinstance(quality, str):
-        quality_command = f"--quality {quality}"
+    # 如果没有指定质量，默认使用 70-90 的范围
+    if quality is None:
+        quality = "70-90"
+
+    quality_command = f"--quality {quality}"
 
     command = (
         f"pngquant {fp} "
