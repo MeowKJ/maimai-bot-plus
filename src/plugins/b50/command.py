@@ -1,5 +1,7 @@
 import os
 import time
+import asyncio
+import subprocess
 from botpy.message import Message
 from botpy import logger
 
@@ -13,6 +15,63 @@ from .draw import DrawBest
 
 FISH = 0
 LXNS = 1
+
+
+async def compress_png(fp, output, force=True, quality=None):
+    """
+    Compresses a PNG file asynchronously.
+
+    Args:
+        fp (str): The file path of the original PNG file.
+        output (str): The file path for the compressed PNG file.
+        force (bool, optional): Whether to force compression. Defaults to True.
+        quality (int or str, optional): Compression quality parameter. Defaults to None.
+
+    Returns:
+        float: Compression ratio percentage.
+    """
+    if not os.path.exists(fp):
+        raise FileNotFoundError(f"File not found: {fp}")
+
+    force_command = "-f" if force else ""
+    quality_command = ""
+
+    if quality and isinstance(quality, int):
+        quality_command = f"--quality {quality}"
+    if quality and isinstance(quality, str):
+        quality_command = f"--quality {quality}"
+
+    command = (
+        f"pngquant {fp} "
+        f"--skip-if-larger {force_command} "
+        f"{quality_command} "
+        f"--output {output}"
+    )
+
+    try:
+        process = await asyncio.create_subprocess_shell(
+            command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+
+        # 获取原始图像大小
+        original_size = os.path.getsize(fp)
+
+        # 获取压缩后文件的大小
+        compressed_size = os.path.getsize(output)
+
+        # 计算压缩比
+        compression_ratio = (1 - compressed_size / original_size) * 100
+
+        # 检查命令是否成功执行
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, command)
+
+        return compression_ratio
+    except asyncio.CancelledError as exc:
+        raise exc from None
+    except Exception as e:
+        raise RuntimeError(f"An error occurred: {e}") from e
 
 
 async def handle_bind(message: Message):
@@ -114,9 +173,13 @@ async def handle_b50(message: Message):
         image_path = f"./tmp/{username}_b50.png"
         draw.save(image_path)
 
+        # Compress the image
+        compressed_image_path = f"./tmp/{username}_b50_compressed.png"
+        compression_ratio = await compress_png(image_path, compressed_image_path)
+
     except Exception as e:
-        logger.error(f"绘制图片时出错: {e}")
-        await message.reply(content="绘制图片时出错，请稍后再试。")
+        logger.error(f"绘制或压缩图片时出错: {e}")
+        await message.reply(content="处理图片时出错，请稍后再试。")
         return
 
     try:
@@ -128,10 +191,10 @@ async def handle_b50(message: Message):
     generation_time = time.time() - start_time
 
     await message.reply(
-        file_image=image_path,  # Pass the file path instead of the image object
+        file_image=compressed_image_path,  # Pass the compressed file path
     )
     await message.reply(
-        content=f"@{message.author.username} B50生成成功, 耗时 {generation_time:.2f} 秒。\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
+        content=f"@{message.author.username} B50生成成功, 耗时 {generation_time:.2f} 秒。\n压缩比: {compression_ratio:.2f}%\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
     )
 
 
