@@ -1,0 +1,10 @@
+pillow
+aiosqlite
+aiohttp>=3.7.4,<4
+qq-botpy
+sqlalchemy
+cryptography
+pyyaml
+requests
+qianfan
+sqlalchemy

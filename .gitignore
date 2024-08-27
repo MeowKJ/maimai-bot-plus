@@ -1,0 +1,34 @@
+# IDE folders
+.idea/
+.code/
+.vscode/
+
+# Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and temporary files
+log/
+*.log
+
+# Sensitive and binary files
+*.psd
+*.zip
+*.exe
+*.sqlite
+*.db
+
+# Virtual environment
+.venv/
+
+# Static files
+static/
+
+# Configuration files
+config.yaml
+config.py
+
+# Ignore test files
+test.py
