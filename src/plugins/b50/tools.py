@@ -43,7 +43,12 @@ async def compress_png(fp, output, force=True, quality=None):
 
     force_command = "-f" if force else ""
 
-    quality_command = f"--quality {quality}"
+    quality_command = ""
+
+    if quality and isinstance(quality, int):
+        quality_command = f"--quality {quality}"
+    if quality and isinstance(quality, str):
+        quality_command = f"--quality {quality}"
 
     command = (
         f"pngquant {fp} "
