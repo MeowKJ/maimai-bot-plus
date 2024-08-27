@@ -134,10 +134,6 @@ async def handle_b50(message: Message):
         content=f"@{message.author.username} B50生成成功, 耗时 {generation_time:.2f} 秒。\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
     )
 
-    # Optionally, delete the image file after sending
-    if os.path.exists(image_path):
-        os.remove(image_path)
-
 
 # 定义支持的指令及其处理函数（指令名应为小写）
 COMMANDS = {
