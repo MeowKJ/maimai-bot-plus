@@ -38,12 +38,34 @@ def add_or_update_user(id_number: int, name: str, paltform_id: int):
         )
 
 
+def update_user_favorite(id_number: int, favorite_id: int):
+    id_base62 = encode_base62(id_number)
+    try:
+        user = session.query(User).filter(User.id == id_base62).first()
+        if user:
+            user.favorite_id = favorite_id
+            session.commit()
+            logger.info(
+                f"[Database] User with ID {id_base62} favorite updated to {favorite_id}."
+            )
+        else:
+            logger.warning(f"[Database] User with ID {id_base62} not found.")
+            raise UserNotFoundError(f"User with ID {id_base62} not found.")
+    except Exception as e:
+        logger.error(
+            f"[Database] Error updating favorite for user with ID {id_base62}: {e}"
+        )
+        raise DatabaseOperationError(
+            f"Error updating favorite for user with ID {id_base62}: {e}"
+        )
+
+
 def get_user_by_id(id_number: int):
     id_base62 = encode_base62(id_number)
     try:
         user = session.query(User).filter(User.id == id_base62).first()
         if user:
-            return user.name, user.paltform_id, user.score
+            return user.name, user.paltform_id, user.score, user.favorite_id
         else:
             logger.warning(f"[Database] User with ID {id_base62} not found.")
             raise UserNotFoundError(f"User with ID {id_base62} not found.")

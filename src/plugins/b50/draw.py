@@ -218,6 +218,7 @@ class DrawBest(Draw):
         self.dxBest = UserInfo.song_data_b15
         self.avatar_id = UserInfo.avatar_id
         self.avatar_url = UserInfo.avatar_url
+        self.favorite_id = UserInfo.favorite_id
 
     def _findRaPic(self) -> str:
         if self.Rating < 1000:
@@ -245,11 +246,28 @@ class DrawBest(Draw):
         return f"UI_CMN_DXRating_{num}.png"
 
     async def draw(self) -> Image.Image:
-        logo = (
-            Image.open(assets.get(AssetType.IMAGES, "logo.png"))
-            .resize((378, 228))
-            .convert("RGBA")
-        )
+
+        x_offset = 0
+        if self.favorite_id == 0:
+            logo = (
+                Image.open(assets.get(AssetType.IMAGES, "logo.png"))
+                .resize((378, 228))
+                .convert("RGBA")
+            )
+            self._im.alpha_composite(logo, (5, 130))
+            x_offset = 0
+
+        else:
+            logo = (
+                Image.open(
+                    assets.get(AssetType.ONGEKI, f"ongeki{self.favorite_id}.png")
+                )
+                .resize((int(220 * 1.2), int(290 * 1.2)))
+                .convert("RGBA")
+            )
+            self._im.alpha_composite(logo, (130, 25))
+            x_offset = 100
+
         dx_rating = (
             Image.open(assets.get(AssetType.IMAGES, self._findRaPic()))
             .resize((300, 59))
@@ -276,7 +294,6 @@ class DrawBest(Draw):
             .convert("RGBA")
         )
 
-        self._im.alpha_composite(logo, (5, 130))
         if self.plate:
 
             plate = (
@@ -294,7 +311,7 @@ class DrawBest(Draw):
                 .convert("RGBA")
             )
 
-        self._im.alpha_composite(plate, (390, 100))
+        self._im.alpha_composite(plate, (x_offset + 390, 100))
 
         # 头像
         if self.avatar_id:
@@ -326,8 +343,8 @@ class DrawBest(Draw):
                 .convert("RGBA")
             )
 
-        self._im.alpha_composite(icon, (398, 108))
-        self._im.alpha_composite(dx_rating, (620, 122))
+        self._im.alpha_composite(icon, (x_offset + 398, 108))
+        self._im.alpha_composite(dx_rating, (x_offset + 620, 122))
         Rating = f"{self.Rating:05d}"
         for n, i in enumerate(Rating):
             self._im.alpha_composite(
@@ -336,20 +353,20 @@ class DrawBest(Draw):
                 )
                 .resize((28, 34))
                 .convert("RGBA"),
-                (760 + 23 * n, 137),
+                (x_offset + 760 + 23 * n, 137),
             )
 
-        self._im.alpha_composite(Name, (620, 200))
-        self._im.alpha_composite(MatchLevel, (935, 205))
-        self._im.alpha_composite(ClassLevel, (926, 105))
-        self._im.alpha_composite(rating, (620, 275))
+        self._im.alpha_composite(Name, (x_offset + 620, 200))
+        self._im.alpha_composite(MatchLevel, (x_offset + 935, 205))
+        self._im.alpha_composite(ClassLevel, (x_offset + 926, 105))
+        self._im.alpha_composite(rating, (x_offset + 620, 275))
 
-        self._sy.draw(635, 235, 40, self.userName, (0, 0, 0, 255), "lm")
+        self._sy.draw(x_offset + 635, 235, 40, self.userName, (0, 0, 0, 255), "lm")
         sdrating, dxrating = sum([_.rating for _ in self.sdBest]), sum(
             [_.rating for _ in self.dxBest]
         )
         self._tb.draw(
-            847,
+            x_offset + 847,
             295,
             28,
             f"B35: {sdrating} + B15: {dxrating} = {self.Rating}",

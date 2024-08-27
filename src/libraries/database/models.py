@@ -16,6 +16,7 @@ class User(Base):
     data = Column(String(255), nullable=True)
     score = Column(Integer, default=0)
     score_update_count = Column(Integer, default=0)
+    favorite_id = Column(SmallInteger, default=0)
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 

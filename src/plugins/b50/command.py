@@ -1,11 +1,19 @@
 import os
 import time
+import random
 from botpy.message import Message
 from botpy.types.message import Reference
 
-from config import LXNS_API_SECRET
-from src.libraries.database import add_or_update_user, get_user_by_id, update_user_score
+from config import LXNS_API_SECRET, DEBUG
+from src.libraries.database import (
+    add_or_update_user,
+    get_user_by_id,
+    update_user_score,
+    update_user_favorite,
+)
 from src.libraries.database.exceptions import DatabaseOperationError, UserNotFoundError
+
+from src.libraries.assets.get import assets, AssetType
 
 from .tools import is_fish_else_lxns, compress_png
 from .player import Player
@@ -28,29 +36,84 @@ async def handle_bind(message: Message):
 
     # 如果用户没有提供绑定信息，返回绑定说明
     if not content:
-        await message.reply(
-            content=(
-                "📖 绑定指令使用说明:\n\n"
-                "使用 /bind 指令可以绑定水鱼查分器的用户名或落雪咖啡屋绑定的QQ号。\n\n"
-                "👤 基本用法:\n"
-                "- `/bind 你的用户名` - 绑定你的用户名(水鱼)或QQ号(落雪)。\n"
-                "  例如：`/bind xxx`\n\n",
-                "⚙️ 自动判断:\n"
-                "默认情况下，系统会自动判断平台。\n\n"
-                "🌐 指定平台(仅在自动识别错误的情况下)**:\n"
-                "- 在用户名后加一个空格并添加平台标识：\n"
-                "  - f 表示水鱼查分器\n"
-                "  - l 表示落雪咖啡屋\n"
-                "  例如：`/bind xxx f` 将用户名xxx强制指定到水鱼查分器。\n\n"
-                "💡 提示:\n"
-                "输入 `/` 可以快速唤起我。如果遇到问题，请联系频道主。",
-            )
+        content = (
+            "📖 绑定指令使用说明:\n\n"
+            "使用 `/bind` 指令可以绑定水鱼查分器的用户名或落雪咖啡屋绑定的 QQ 号。\n\n"
+            "👤 基本用法:\n"
+            "- `/bind 你的用户名` - 绑定你的用户名（水鱼）或 QQ 号（落雪）。\n"
+            "  例如：`/bind xxx`\n\n"
+            "⚙️ 自动判断:\n"
+            "默认情况下，系统会自动判断平台。\n\n"
+            "🌐 指定平台（仅在自动识别错误的情况下）:\n"
+            "- 在用户名后加一个空格并添加平台标识：\n"
+            "  - `f` 表示水鱼查分器\n"
+            "  - `l` 表示落雪咖啡屋\n"
+            "  例如：`/bind xxx f` 将用户名 xxx 强制指定到水鱼查分器。\n\n"
+            "💡 小提示:\n"
+            "输入 `/` 可以快速唤起我。如果遇到问题，请联系频道主。"
         )
+
+        # 8 分之一的概率显示隐藏内容
+        if random.randint(1, 8) == 1:
+            content += (
+                "\n\n🎀 绑定喜欢的音击小女孩!（隐藏功能）:\n"
+                "- 输入 `/bind @OngekiGirls show` 可以查看音击小女孩列表。\n"
+                "- 输入 `/bind @OngekiGirls 序号` 可以绑定你喜欢的音击小女孩。\n"
+                "绑定的小女孩将会在你的 B50 中出现哦~"
+            )
+
+        await message.reply(content=content)
         return
 
     # 获取用户名和平台信息
     content_list = content.split(" ")
     user_name = content_list[0]
+
+    print(content_list)
+    print(user_name)
+    # 如果是绑定音击小女孩
+    if user_name == "@OngekiGirls" and len(content_list) > 1:
+
+        args = content_list[1]
+        logger.info(f"[BIND]用户 {user_id} 尝试绑定音击小女孩: {args}")
+
+        if args == "show":
+            await message.reply(
+                file_image=await assets.get_async(AssetType.ONGEKI, "OngekiGirls.png")
+            )
+            return
+
+        try:
+            girl_number = float(args)
+
+            # 检查是否为整数且在 1 到 17 之间
+            if girl_number.is_integer() and 1 <= int(girl_number) <= 17:
+                girl_number = int(girl_number)
+                try:
+                    update_user_favorite(user_id, girl_number)
+                    await message.reply(
+                        content=f"🎉 已成功绑定音击小女孩 {girl_number}!",
+                        message_reference=message_reference,
+                    )
+                except Exception as e:
+                    logger.error(f"绑定音击小女孩时出错: {e}")
+                    await message.reply(
+                        content="❌ 绑定失败, 首先需要绑定查分器。",
+                        message_reference=message_reference,
+                    )
+            else:
+                await message.reply(
+                    content="❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
+                    message_reference=message_reference,
+                )
+        except ValueError:
+            await message.reply(
+                content="❌ 请输入一个有效的整数。",
+                message_reference=message_reference,
+            )
+        return
+
+    # 绑定音击小女孩结束
 
     # 默认为水鱼查分器
     platform_id = FISH
@@ -99,7 +162,7 @@ async def handle_b50(message: Message):
 
     # 尝试从数据库获取用户信息
     try:
-        username, platform_id, score = get_user_by_id(user_id)
+        username, platform_id, score, favorite_id = get_user_by_id(user_id)
     except Exception:
         await message.reply(
             content=(
@@ -113,6 +176,7 @@ async def handle_b50(message: Message):
     player = Player(
         username,
         user_id,
+        favorite_id=favorite_id,
         avatar_url=message.author.avatar,
         api_secret=LXNS_API_SECRET,
     )
@@ -130,9 +194,9 @@ async def handle_b50(message: Message):
         await message.reply(
             content=(
                 "⚠️ 获取数据时出错，请检查以下事项：\n"
-                "1️⃣ 确认用户名或QQ号是否正确输入。\n"
-                "2️⃣ 检查查分网站隐私设置，确保查分器有权限访问你的数据。\n"
-                "3️⃣ 尝试重新操作几次。\n"
+                "1.确认用户名或QQ号是否正确输入。\n"
+                "2.检查查分网站隐私设置，确保查分器有权限访问你的数据。\n"
+                "3.尝试重新操作几次。\n"
                 "如果问题仍然存在，请联系频道主寻求帮助。\n\n"
                 f"当前查分器平台: {PLATFORM_STR[platform_id]}\n"
                 f"用户名: {username}"
@@ -155,7 +219,14 @@ async def handle_b50(message: Message):
 
         # 压缩图片
         compressed_image_path = f"./tmp/{username}_b50_compressed.png"
-        compression_ratio = await compress_png(image_path, compressed_image_path)
+
+        # 如果是调试模式，不压缩图片
+        if not DEBUG:
+            compression_ratio = await compress_png(image_path, compressed_image_path)
+        else:
+            draw.show()
+            compression_ratio = 0
+            compressed_image_path = image_path
 
     except Exception as e:
         logger.error(f"绘制或压缩图片时出错: {e}")
@@ -181,7 +252,6 @@ async def handle_b50(message: Message):
     # 回复压缩后的图片
     await message.reply(
         file_image=compressed_image_path,
-        message_reference=message_reference,
     )
 
     # 回复生成成功信息

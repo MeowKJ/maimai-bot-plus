@@ -19,6 +19,7 @@ log/
 *.exe
 *.sqlite
 *.db
+*.sql
 
 # Virtual environment
 .venv/

@@ -93,6 +93,7 @@ class Player:
         self,
         username,
         guild_id,
+        favorite_id=0,
         avatar_url="",
         api_secret="",
     ):
@@ -116,6 +117,9 @@ class Player:
         self.song_data_b15_total = 0
         self.song_data_b35_total = 0
         self.api_secret = api_secret
+
+        # 喜欢的音击小女孩 ID
+        self.favorite_id = favorite_id
 
     async def fetch_songs_data(self, auth_headers):
         base_api = "https://maimai.lxns.net"

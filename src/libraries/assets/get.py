@@ -18,11 +18,10 @@ class AssetType(Enum):
     COURSE_RANK = "/assets/course_rank/"
     CLASS_RANK = "/assets/class_rank/"
     RATING = "/assets/rating/"
-    TROPHY = "/assets/trophy/"
     PLATE = "/assets/plate/"
-    BG = "/assets/bg/"
     IMAGES = "/assets/images/"
     AVATAR = "/assets/avatar/"
+    ONGEKI = "/assets/ongeki/"
 
 
 class Assets:

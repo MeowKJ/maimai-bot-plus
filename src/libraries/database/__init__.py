@@ -6,5 +6,6 @@ from .crud import (
     update_user_score,
     delete_user,
     add_or_update_user,
+    update_user_favorite,
 )
 from .base62_utils import encode_base62, decode_base62
