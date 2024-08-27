@@ -156,12 +156,7 @@ async def handle_b50(message: Message):
     except Exception as e:
         logger.error(f"获取查分器数据时出错: {e}")
         await message.reply(
-            content=f"@{message.author.username} 获取数据时出错, 检查一下
-            \n1.用户名是否填错了
-            \n2.网站的隐私设置, 是否允许查分器访问
-            \n3.重试几次
-            \n如果进一步遇到问题, 请联系频道主。
-            \n查分器平台: {PLATFORM_STR[platform_id]} 用户名: {username}"
+            content=f"@{message.author.username} 获取数据时出错, 检查一下\n1.用户名是否填错了\n2.网站的隐私设置, 是否允许查分器访问\n3.重试几次\n如果进一步遇到问题, 请联系频道主。\n查分器平台: {PLATFORM_STR[platform_id]} 用户名: {username}"
         )
         return
 
