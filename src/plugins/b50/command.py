@@ -133,12 +133,8 @@ async def handle_b50(message: Message):
     user_id = int(message.author.id)
     try:
         username, platform_id, score = get_user_by_id(user_id)
-    except UserNotFoundError:
+    except Exception:
         await message.reply(content="请先使用 /bind 指令绑定你的查分器账号。")
-        return
-    except DatabaseOperationError as e:
-        logger.error(f"查询用户时出错: {e}")
-        await message.reply(content="查询失败, Bot出现了问题。请稍后再试。")
         return
 
     player = Player(
