@@ -104,20 +104,20 @@ async def handle_b50(message: Message):
         )
         return
 
-    try:
-        drawBest = DrawBest(player)
-        draw = await drawBest.draw()
+    # try:
+    drawBest = DrawBest(player)
+    draw = await drawBest.draw()
 
-        # Save the image to a file
-        if not os.path.exists("./tmp"):
-            os.makedirs("./tmp")
-        image_path = f"./tmp/{username}_b50.png"
-        draw.save(image_path)
+    # Save the image to a file
+    if not os.path.exists("./tmp"):
+        os.makedirs("./tmp")
+    image_path = f"./tmp/{username}_b50.png"
+    draw.save(image_path)
 
-    except Exception as e:
-        logger.error(f"绘制图片时出错: {e}")
-        await message.reply(content="绘制图片时出错，请稍后再试。")
-        return
+    # except Exception as e:
+    # logger.error(f"绘制图片时出错: {e}")
+    # await message.reply(content="绘制图片时出错，请稍后再试。")
+    # return
 
     try:
         update_user_score(user_id, player.rating)
