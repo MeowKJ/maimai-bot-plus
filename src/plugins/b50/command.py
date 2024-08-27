@@ -81,19 +81,18 @@ async def handle_bind(message: Message):
     if not content:
         await message.reply(
             content="""
-            这里是bind指令的说明：
-            /bind后面可以接上水鱼查分器的用户名或者是落雪咖啡屋绑定的QQ号。
-            例如：/bind user 将绑定用户名 user。
+这里是bind指令的说明：
+/bind后面可以接上水鱼查分器的用户名或者是落雪咖啡屋绑定的QQ号。
+例如：/bind user 将绑定用户名 user。
 
-            如果要强制指定平台，可以在用户名后面加上空格：
-            - f 表示水鱼查分器
-            - l 表示落雪咖啡屋
+如果要强制指定平台，可以在用户名后面加上空格：
+- f 表示水鱼查分器
+- l 表示落雪咖啡屋
 
-            例如：/bind user f 将绑定用户名到水鱼查分器。
-            默认情况下会自动判断平台。
+例如：/bind user f 将绑定用户名到水鱼查分器。
+默认情况下会自动判断平台。
 
-            Tip: 输入 / 可以快速唤起我。如有问题请联系频道主。
-            """
+Tip: 输入 / 可以快速唤起我。如有问题请联系频道主。"""
         )
         return
 
@@ -195,7 +194,7 @@ async def handle_b50(message: Message):
         file_image=compressed_image_path,  # Pass the compressed file path
     )
     await message.reply(
-        content=f"@{message.author.username} B50生成成功[{PLATFORM_STR[platform_id]}], 耗时 {generation_time:.2f} 秒。\n压缩比: {compression_ratio:.2f}%\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
+        content=f"@{message.author.username} B50[{PLATFORM_STR[platform_id]}]生成成功, 耗时 {generation_time:.2f} 秒。\n压缩比: {compression_ratio:.2f}%\n更多统计信息可以访问 Maimai的网页查分器(详见频道帖子-相关教程)。",
     )
 
 
