@@ -68,7 +68,9 @@ async def handle_bind(message: Message):
         return
 
     # 获取用户名和平台信息
-    content_list = content.split(" ")
+    content_list_raw = content.split(" ")
+    content_list = [item for item in content_list_raw if item]
+
     user_name = content_list[0]
 
     print(content_list)
