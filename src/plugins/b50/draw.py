@@ -8,10 +8,8 @@ from src.libraries.assets.get import assets, AssetType
 from .image import DrawText
 from .basic import *
 from config import (
-    HANYI_FONT,
     MEIRYO_FONT,
     SIYUAN_FONT,
-    TORUS_REGULAR_FONT,
     TORUS_BOLD_FONT,
 )
 from .player import Player, SongData
@@ -249,7 +247,7 @@ class DrawBest(Draw):
     async def draw(self) -> Image.Image:
         logo = (
             Image.open(assets.get(AssetType.IMAGES, "logo.png"))
-            .resize((378, 172))
+            .resize((378, 228))
             .convert("RGBA")
         )
         dx_rating = (
