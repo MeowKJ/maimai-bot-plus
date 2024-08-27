@@ -202,7 +202,7 @@ async def handle_b50(message: Message):
 
     await message.reply(
         content=(
-            f"😺 **B50[{PLATFORM_STR[platform_id]}]** 生成成功啦，耗时 {generation_time:.2f} 喵！\n"
+            f"🎉 B50[{PLATFORM_STR[platform_id]}] 生成成功啦，耗时 {generation_time:.2f} 喵！\n"
             f"📉 压缩比: {compression_ratio:.2f}%\n"
             f"{time_message}"
             "更多有趣的统计信息可以去 Maimai 的网页查分器查看-参见频道帖子中的相关教程\n"
