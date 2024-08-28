@@ -134,6 +134,10 @@ async def handle_bind(message: Message):
 
         return
 
+    if platform_id == LXNS:
+        # 隐藏 QQ 号中间部分，仅显示前两位和最后两位
+        user_name = f"{user_name[:2]}****{user_name[-2:]}"
+
     content = (
         f"🎉 [{user_name}] 已成功绑定到你的频道号！\n"
         f"✅ 查分平台: [{PLATFORM_STR[platform_id]}]\n"
