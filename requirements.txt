@@ -8,3 +8,4 @@ pyyaml
 requests
 qianfan
 sqlalchemy
+imagekitio

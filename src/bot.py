@@ -3,7 +3,7 @@ import importlib
 import logging
 
 from botpy import Client
-from botpy.message import Message
+from botpy.message import Message, GroupMessage
 
 from botpy import logger
 
@@ -11,7 +11,10 @@ from botpy import logger
 class MyClient(Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.commands = {}
+        self.channel_commands = {}  # 存储频道指令
+        self.group_commands = {}  # 存储群指令
+        self.default_channel_handlers = []  # 默认频道处理函数列表
+        self.default_group_handlers = []  # 默认群处理函数列表
         self.load_plugins()
 
     async def on_ready(self):
@@ -27,15 +30,28 @@ class MyClient(Client):
                         f"src.plugins.{module_name}.command"
                     )
                     if hasattr(command_module, "COMMANDS"):
-                        self.commands.update(
-                            {
-                                cmd_name.lower(): cmd_func
-                                for cmd_name, cmd_func in command_module.COMMANDS.items()
-                            }
-                        )
+                        for cmd_name, cmd_func in command_module.COMMANDS.items():
+                            cmd_name_lower = cmd_name.lower()
+                            if command_module.COMMAND_SCOPE in ["channel", "both"]:
+                                self.channel_commands[cmd_name_lower] = cmd_func
+                            if command_module.COMMAND_SCOPE in ["group", "both"]:
+                                self.group_commands[cmd_name_lower] = cmd_func
+
                         logger.info(
                             f"[BOT] Loaded commands from module '{module_name}': {', '.join(command_module.COMMANDS.keys())}."
                         )
+
+                    # 加载未匹配指令的处理函数
+                    if hasattr(command_module, "DEFAULT_HANDLER"):
+                        if command_module.COMMAND_SCOPE in ["channel", "both"]:
+                            self.default_channel_handlers.append(
+                                command_module.DEFAULT_HANDLER
+                            )
+                        if command_module.COMMAND_SCOPE in ["group", "both"]:
+                            self.default_group_handlers.append(
+                                command_module.DEFAULT_HANDLER
+                            )
+
                 except Exception as e:
                     logger.error(f"[BOT] Error loading module '{module_name}': {e}")
 
@@ -46,8 +62,31 @@ class MyClient(Client):
         content = message.content.split(">")[1].strip()
 
         if content.startswith("/"):
-            command = content.split()[0][1:].lower()  # 提取指令名并转换为小写
-            if command in self.commands:
-                await self.commands[command](message)
-            else:
-                await message.reply(content=f"未知的指令: {command}")
+            command = content.split()[0][1:].lower()
+            if command in self.channel_commands:
+                await self.channel_commands[command](message)
+        else:
+            await self.handle_unmatched_channel_command(message)
+
+    async def on_group_at_message_create(self, message: GroupMessage):
+        logger.info(
+            f"[BOT] Received group message: {message.author.member_openid}: {message.content}"
+        )
+        content = message.content.strip()
+
+        if content.startswith("/"):
+            command = content.split()[0][1:].lower()
+            if command in self.group_commands:
+                await self.group_commands[command](message)
+        else:
+            await self.handle_unmatched_group_command(message)
+
+    async def handle_unmatched_channel_command(self, message):
+        for handler in self.default_channel_handlers:
+            if await handler(message):
+                return  # 如果某个处理函数成功处理了消息，则退出
+
+    async def handle_unmatched_group_command(self, message):
+        for handler in self.default_group_handlers:
+            if await handler(message):
+                return  # 如果某个处理函数成功处理了消息，则退出

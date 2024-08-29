@@ -12,3 +12,6 @@ COMMANDS = {
 
 # 默认大写的插件名
 COMMAND_NAME = "TEST"
+
+# 指令范围
+COMMAND_SCOPE = "both"

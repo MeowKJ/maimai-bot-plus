@@ -305,3 +305,5 @@ COMMANDS = {
 
 # 默认大写的插件名
 COMMAND_NAME = "B50"
+# 指令范围
+COMMAND_SCOPE = "channel"
