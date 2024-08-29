@@ -49,16 +49,19 @@ class GuessSongHandler:
 
             self.game_active = True
             group_game_state[self.group_id] = self  # 将实例保存到全局状态字典中
+            while not self.alias_str:
+                self.current_song = await self.choice_song()
+                if not self.current_song:
+                    await self.send_message("❌ 无法获取歌曲列表，请稍后再试。")
+                    self.game_active = False
+                    del group_game_state[self.group_id]
+                    return
+                self.alias_str = await get_alias_by_id(self.current_song["id"])
+                cover_path = await self.get_cover()
+                logger.info(
+                    f"Chosen song: {self.current_song['title']} - {self.alias_str}"
+                )
 
-            self.current_song = await self.choice_song()
-            if not self.current_song:
-                await self.send_message("❌ 无法获取歌曲列表，请稍后再试。")
-                self.game_active = False
-                del group_game_state[self.group_id]
-                return
-
-            self.alias_str = await get_alias_by_id(self.current_song["id"])
-            cover_path = await self.get_cover()
             await self.send_message("🎵 开始猜歌吧！这是什么乐曲呢？", image=cover_path)
             await self.wait_for_guess()
         except Exception as e:
@@ -108,7 +111,7 @@ class GuessSongHandler:
             self.message_seq_id += 1
         except Exception as e:
             logger.error(f"Error sending message: {str(e)}")
-            await self.end_game("❌ 消息发送失败，游戏结束。")
+            await self.end_game(is_message=False)
 
     async def guess_song(self, message: GroupMessage):
         """
@@ -203,7 +206,7 @@ class GuessSongHandler:
                 return
 
             if self.game_active:
-                await self.end_game()
+                await self.end_game(be_guessed=False)
             else:
                 return
 
@@ -247,7 +250,7 @@ class GuessSongHandler:
 
             elif hint_type == "cover image":
                 cover_path = await self.get_cover(120, 120)
-                await self.send_message("🔍 提示6: 更大的曲绘来了！", image=cover_path)
+                await self.send_message("🔍 提示4: 更大的曲绘来了！", image=cover_path)
 
             elif hint_type == "title":
                 await self.send_message(
@@ -257,17 +260,20 @@ class GuessSongHandler:
             elif hint_type == "alias":
                 if self.alias_str:
                     alias = self.alias_str.split("\n")
-                    alias = random.choice(alias)
-                    if alias:
-                        self.alias_str = self.alias_str.replace(alias, "")
-                        await self.send_message(f"🔍 提示4: 有人称这首歌为 {alias}")
-                        return
-                await self.send_message(f"🔍 提示5: 没有人给这首歌别名。")
+                    if len(alias) > 2:
+                        alias = random.choice(alias)
+                        if alias:
+                            self.alias_str = self.alias_str.replace(alias, "")
+                            await self.send_message(f"🔍 提示5: 有人称这首歌为 {alias}")
+                            return
+                await self.send_message(
+                    f"🔍 提示5: 分类({self.current_song['genre']} 艺术家({self.current_song['artist']} BPM({self.current_song['bpm']}"
+                )
         except Exception as e:
             logger.error(f"Error providing hint: {str(e)}")
             await self.end_game("❌ 提供提示时出错，游戏结束。")
 
-    async def end_game(self, reason="", be_guessed=False):
+    async def end_game(self, reason="", is_message=True, be_guessed=True):
         """
         结束游戏，并公布正确答案。
         """
@@ -281,15 +287,21 @@ class GuessSongHandler:
                 except OSError:
                     pass
             self.temp_files.clear()
-
-            cover = await assets.get_async(AssetType.COVER, self.current_song["id"])
-            await self.send_message(
-                f"🎶 正确答案是 {self.current_song['title']}！{reason}", image=cover
-            )
+            if is_message:
+                cover = await assets.get_async(AssetType.COVER, self.current_song["id"])
+                if be_guessed:
+                    await self.send_message(
+                        f"🎉 🎉 🎉 {self.current_song['title']}！{reason}",
+                        image=cover,
+                    )
+                else:
+                    await self.send_message(
+                        f"没有人猜对！正确答案是 {self.current_song['title']}。{reason}",
+                        image=cover,
+                    )
             self.current_song = None
         except Exception as e:
             logger.error(f"Error ending game: {str(e)}")
-            # await self.send_message("❌ 游戏结束时出错，请联系管理员。")
         finally:
             # 移除群组的游戏状态
             if self.group_id in group_game_state:
