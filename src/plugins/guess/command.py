@@ -113,13 +113,17 @@ class GuessSongHandler:
         """
         处理用户的猜歌尝试。
         """
+
         if not self.game_active:
             return
+        # 转移消息对象
+        self.message = message
 
         try:
             if await self.judge_guess(message.content):
                 await self.send_message("🎉 恭喜你，猜对了！")
-                await self.end_game()
+
+                await self.end_game("", True)
             else:
                 await self.send_message("❌ 猜错了，再试试吧！")
         except Exception as e:
@@ -171,17 +175,26 @@ class GuessSongHandler:
             if self.game_active:
                 await self.provide_hint("genre or version or artist")
                 await asyncio.sleep(15)  # 再等待 10 秒
+            else:
+                return
 
             if self.game_active:
                 await self.provide_hint("difficulty level")
                 await asyncio.sleep(15)  # 再等待 10 秒
+            else:
+                return
 
             if self.game_active:
                 await self.provide_hint("cover image")
                 await asyncio.sleep(20)  # 再等待 10 秒
+            else:
+                return
 
             if self.game_active:
                 await self.end_game()
+            else:
+                return
+
         except Exception as e:
             logger.error(f"Error during waiting for guess: {str(e)}")
             await self.end_game("❌ 游戏出现错误，已结束。")
@@ -227,7 +240,7 @@ class GuessSongHandler:
             logger.error(f"Error providing hint: {str(e)}")
             await self.end_game("❌ 提供提示时出错，游戏结束。")
 
-    async def end_game(self, reason=""):
+    async def end_game(self, reason="", be_guessed=False):
         """
         结束游戏，并公布正确答案。
         """
