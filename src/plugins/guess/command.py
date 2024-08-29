@@ -255,14 +255,14 @@ class GuessSongHandler:
                 )
 
             elif hint_type == "alias":
-                alias = self.alias_str.split("\n")
-                if alias:
+                if self.alias:
+                    alias = self.alias_str.split("\n")
                     alias = random.choice(alias)
-                    await self.send_message(f"🔍 提示4: 有人称这首歌为 {alias}")
-                else:
-                    await self.send_message(
-                        f"🔍 提示5: 没有人给这首歌别名，看起来是很冷门的歌曲呢。"
-                    )
+                    if alias:
+                        self.alias_str = self.alias_str.replace(alias, "")
+                        await self.send_message(f"🔍 提示4: 有人称这首歌为 {alias}")
+                        return
+                await self.send_message(f"🔍 提示5: 没有人给这首歌别名。")
         except Exception as e:
             logger.error(f"Error providing hint: {str(e)}")
             await self.end_game("❌ 提供提示时出错，游戏结束。")
