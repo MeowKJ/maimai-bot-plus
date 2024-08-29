@@ -35,7 +35,7 @@ class GuessSongHandler:
         self.group_id = message.group_openid  # 使用 group_openid 作为唯一标识
         self.temp_files = []
         self.current_song = None
-        self.alias_str = ""
+        self.alias = []
         self.game_active = False
         self.possible_answers = []
 
@@ -55,26 +55,24 @@ class GuessSongHandler:
 
             self.game_active = True
             group_game_state[self.group_id] = self  # 将实例保存到全局状态字典中
-            while not self.alias_str:
+
+            while len(self.alias) < 2:
                 self.current_song = await self.choice_song()
                 if not self.current_song:
                     await self.send_message("❌ 无法获取歌曲列表，请稍后再试。")
                     self.game_active = False
                     del group_game_state[self.group_id]
                     return
-                self.alias_str = await get_alias_by_id(self.current_song["id"])
+                self.alias = await get_alias_by_id(self.current_song["id"])
                 cover_path = await self.get_cover()
-                logger.info(
-                    f"Chosen song: {self.current_song['title']} - {self.alias_str}"
-                )
+                logger.info(f"Chosen song: {self.current_song['title']}")
 
             title = self.current_song["title"].replace(" ", "").lower()
-            alais = self.alias_str.replace(" ", "").lower().split("\n")
 
             chinese = await translate_to_chinese(self.current_song["title"], "en")
             chinese2 = await translate_to_chinese(self.current_song["title"], "ja")
 
-            self.possible_answers = [title, chinese, chinese2] + alais
+            self.possible_answers = [title, chinese, chinese2] + self.alias
             logger.info(f"Possible answers: {self.possible_answers}")
 
             await self.send_message("🎵 开始猜歌吧！这是什么乐曲呢？", image=cover_path)
@@ -266,19 +264,20 @@ class GuessSongHandler:
                 )
 
             elif hint_type == "alias":
-                if self.alias_str:
-                    alias = self.alias_str.split("\n")
-                    if len(alias) > 2:
-                        alias = random.choice(alias)
-                        if alias:
-                            self.alias_str = self.alias_str.replace(alias, "")
-                            await self.send_message(f"🔍 提示5: 有人称这首歌为 {alias}")
+                if self.alias:
+                    if len(self.alias) > 2:
+                        one_alias = random.choice(self.alias)
+                        if one_alias:
+                            self.alias.remove(one_alias)
+                            await self.send_message(
+                                f"🔍 提示5: 有人称这首歌为 {one_alias}"
+                            )
                             return
                 await self.send_message(
-                    f"🔍 提示5:\n"
+                    f"\n🔍 提示5:\n"
                     f"分类({self.current_song['genre']}\n"
                     f"艺术家({self.current_song['artist']})\n"
-                    f"BPM({self.current_song['bpm']}"
+                    f"BPM({self.current_song['bpm']})"
                 )
         except Exception as e:
             logger.error(f"Error providing hint: {str(e)}")

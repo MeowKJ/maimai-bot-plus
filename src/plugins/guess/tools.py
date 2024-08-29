@@ -51,6 +51,7 @@ async def get_alias_by_id(song_id: int) -> str:
     Returns:
         str: alias
     """
+    total_aliases = []
     url = "https://maimai.lxns.net/api/v0/maimai/alias/list"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
@@ -62,7 +63,19 @@ async def get_alias_by_id(song_id: int) -> str:
             aliases = data.get("aliases")
             for i in aliases:
                 if i.get("song_id") == song_id:
-                    return "\n".join(i.get("aliases"))
+                    total_aliases += i.get("alias")
+
+    url2 = "https://download.fanyu.site/maimai/alias.json"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url2) as resp:
+
+            if resp.status != 200:
+                return
+            data = await resp.json()
+
+            total_aliases += data.get(str(song_id))
+
+    return total_aliases
 
 
 versions = [
