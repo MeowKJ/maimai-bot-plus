@@ -61,20 +61,23 @@ async def get_alias_by_id(song_id: int) -> str:
             data = await resp.json()
 
             aliases = data.get("aliases")
-            for i in aliases:
-                if i.get("song_id") == song_id:
-                    total_aliases += i.get("alias")
+            if aliases:
+                for i in aliases:
+                    if i.get("song_id") == song_id:
+                        if i.get("alias"):
+                            total_aliases += i.get("alias")
 
     url2 = "https://download.fanyu.site/maimai/alias.json"
+    if song_id > 999 and song_id < 10000:
+        song_id = song_id + 10000
     async with aiohttp.ClientSession() as session:
         async with session.get(url2) as resp:
 
             if resp.status != 200:
                 return
             data = await resp.json()
-
-            total_aliases += data.get(str(song_id))
-
+            if data.get(str(song_id)):
+                total_aliases += data.get(str(song_id))
     return total_aliases
 
 
