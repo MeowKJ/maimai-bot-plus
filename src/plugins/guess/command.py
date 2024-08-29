@@ -121,7 +121,7 @@ class GuessSongHandler:
 
         try:
             if await self.judge_guess(message.content):
-                await self.send_message("🎉 恭喜你，猜对了！")
+                await self.send_message("🎉 恭喜你，猜对了！积分+1")
 
                 await self.end_game("", True)
             else:
@@ -174,13 +174,25 @@ class GuessSongHandler:
             await asyncio.sleep(10)  # 等待 10 秒
             if self.game_active:
                 await self.provide_hint("genre or version or artist")
-                await asyncio.sleep(15)  # 再等待 10 秒
+                await asyncio.sleep(10)  # 再等待 10 秒
             else:
                 return
 
             if self.game_active:
                 await self.provide_hint("difficulty level")
-                await asyncio.sleep(15)  # 再等待 10 秒
+                await asyncio.sleep(10)  # 再等待 10 秒
+            else:
+                return
+
+            if self.game_active:
+                await self.provide_hint("title")
+                await asyncio.sleep(10)
+            else:
+                return
+
+            if self.game_active:
+                await self.provide_hint("alias")
+                await asyncio.sleep(20)
             else:
                 return
 
@@ -235,7 +247,22 @@ class GuessSongHandler:
 
             elif hint_type == "cover image":
                 cover_path = await self.get_cover(120, 120)
-                await self.send_message("🔍 提示3: 更大的曲绘来了！", image=cover_path)
+                await self.send_message("🔍 提示6: 更大的曲绘来了！", image=cover_path)
+
+            elif hint_type == "title":
+                await self.send_message(
+                    f"🔍 提示3: 歌曲名的第一个字母是 {self.current_song['title'][0]}"
+                )
+
+            elif hint_type == "alias":
+                alias = self.alias_str.split("\n")
+                if alias:
+                    alias = random.choice(alias)
+                    await self.send_message(f"🔍 提示4: 有人称这首歌为 {alias}")
+                else:
+                    await self.send_message(
+                        f"🔍 提示5: 没有人给这首歌别名，看起来是很冷门的歌曲呢。"
+                    )
         except Exception as e:
             logger.error(f"Error providing hint: {str(e)}")
             await self.end_game("❌ 提供提示时出错，游戏结束。")
