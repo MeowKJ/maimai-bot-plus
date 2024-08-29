@@ -254,7 +254,7 @@ class GuessSongHandler:
                 )
 
             elif hint_type == "alias":
-                if self.alias:
+                if self.alias_str:
                     alias = self.alias_str.split("\n")
                     alias = random.choice(alias)
                     if alias:
