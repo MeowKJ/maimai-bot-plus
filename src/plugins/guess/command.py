@@ -56,7 +56,7 @@ class GuessSongHandler:
             self.game_active = True
             group_game_state[self.group_id] = self  # 将实例保存到全局状态字典中
 
-            while len(self.alias) < 2:
+            while len(self.alias) < 3:
                 self.current_song = await self.choice_song()
                 if not self.current_song:
                     await self.send_message("❌ 无法获取歌曲列表，请稍后再试。")
@@ -265,7 +265,7 @@ class GuessSongHandler:
 
             elif hint_type == "alias":
                 if self.alias:
-                    if len(self.alias) > 2:
+                    if len(self.alias) > 5:
                         one_alias = random.choice(self.alias)
                         if one_alias:
                             self.alias.remove(one_alias)
