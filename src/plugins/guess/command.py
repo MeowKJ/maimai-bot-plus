@@ -11,7 +11,12 @@ from PIL import Image
 from botpy import Client
 from botpy.message import GroupMessage
 from src.libraries.assets.get import assets, AssetType
-from .tools import get_alias_by_id, get_version_name, upload_to_imagekit
+from .tools import (
+    get_alias_by_id,
+    get_version_name,
+    upload_to_imagekit,
+    translate_to_chinese,
+)
 
 from botpy import logger
 
@@ -32,6 +37,7 @@ class GuessSongHandler:
         self.current_song = None
         self.alias_str = ""
         self.game_active = False
+        self.possible_answers = []
 
     async def start_game(self):
         """
@@ -61,6 +67,15 @@ class GuessSongHandler:
                 logger.info(
                     f"Chosen song: {self.current_song['title']} - {self.alias_str}"
                 )
+
+            title = self.current_song["title"].replace(" ", "").lower()
+            alais = self.alias_str.replace(" ", "").lower().split("\n")
+
+            chinese = await translate_to_chinese(self.current_song["title"], "en")
+            chinese2 = await translate_to_chinese(self.current_song["title"], "ja")
+
+            self.possible_answers = [title, chinese, chinese2] + alais
+            logger.info(f"Possible answers: {self.possible_answers}")
 
             await self.send_message("🎵 开始猜歌吧！这是什么乐曲呢？", image=cover_path)
             await self.wait_for_guess()
@@ -141,15 +156,8 @@ class GuessSongHandler:
         if not msg:
             return False
 
-        possible_answers = [self.current_song["title"].replace(" ", "").lower()] + [
-            alias.replace(" ", "").lower()
-            for alias in (self.alias_str or "").split("\n")
-        ]
-
         guess_lower = msg.replace(" ", "").lower()
-        logger.info(f"Guess: {guess_lower}")
-        logger.info(f"Possible answers: {possible_answers}")
-        for answer in possible_answers:
+        for answer in self.possible_answers:
             if not answer:
                 if not self.current_song["title"].replace(" ", ""):
                     return True
@@ -267,7 +275,10 @@ class GuessSongHandler:
                             await self.send_message(f"🔍 提示5: 有人称这首歌为 {alias}")
                             return
                 await self.send_message(
-                    f"🔍 提示5: 分类({self.current_song['genre']} 艺术家({self.current_song['artist']} BPM({self.current_song['bpm']}"
+                    f"🔍 提示5:\n"
+                    f"分类({self.current_song['genre']}\n"
+                    f"艺术家({self.current_song['artist']})\n"
+                    f"BPM({self.current_song['bpm']}"
                 )
         except Exception as e:
             logger.error(f"Error providing hint: {str(e)}")

@@ -9,6 +9,8 @@ from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 
 from config import IMAGES_SERVER_ADDRESS
 
+from botpy import logger
+
 
 async def upload_to_imagekit(file_path):
     """
@@ -101,3 +103,33 @@ def get_version_name(version_code):
             return version["title"]
 
     return "未知版本"  # 如果没有找到匹配的版本，返回未知版本
+
+
+async def translate_to_chinese(text, source_language="en"):
+    """
+    将日文或英文文本翻译成中文，使用不需要认证的免费翻译 API。
+    默认从英文翻译，如果提供 source_language 参数则使用指定语言。
+    """
+    if not text:
+        return ""
+
+    endpoint = "https://api.mymemory.translated.net/get"
+
+    params = {
+        "q": text,
+        "langpair": f"{source_language}|zh-CN",  # Translate from the specified source language to Simplified Chinese
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(endpoint, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                if "responseData" in data:
+                    translated_text = data["responseData"]["translatedText"]
+                    return translated_text
+                else:
+                    logger.error(f"Translation error: {data}")
+                    return ""
+            else:
+                logger.error(f"Translation failed with status: {response.status}")
+                return ""
