@@ -72,8 +72,8 @@ class GuessSongHandler:
         try:
             if image:
                 # 上传图片到 ImageKit 并获取URL
-                # image_url = await upload_to_imagekit(image)
-                image_url = image
+                image_url = await upload_to_imagekit(image)
+                # image_url = image
                 if not image_url:
                     await self.message.reply(content="图片上传失败，请稍后再试。")
                     self.end_game()
