@@ -59,7 +59,7 @@ class GuessSongHandler:
 
             self.alias_str = await get_alias_by_id(self.current_song["id"])
             cover_path = await self.get_cover()
-            await self.send_message("🎵 开始猜歌吧！这是什么歌呢？", image=cover_path)
+            await self.send_message("🎵 开始猜歌吧！这是什么乐曲呢？", image=cover_path)
             await self.wait_for_guess()
         except Exception as e:
             logger.error(f"Error starting game: {str(e)}")
