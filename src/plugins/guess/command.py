@@ -185,31 +185,31 @@ class GuessSongHandler:
             await asyncio.sleep(10)  # 等待 10 秒
             if self.game_active:
                 await self.provide_hint("genre or version or artist")
-                await asyncio.sleep(10)  # 再等待 10 秒
+                await asyncio.sleep(15)  # 再等待 10 秒
             else:
                 return
 
             if self.game_active:
                 await self.provide_hint("difficulty level")
-                await asyncio.sleep(10)  # 再等待 10 秒
+                await asyncio.sleep(15)  # 再等待 10 秒
             else:
                 return
 
             if self.game_active:
                 await self.provide_hint("title")
-                await asyncio.sleep(10)
-            else:
-                return
-
-            if self.game_active:
-                await self.provide_hint("alias")
-                await asyncio.sleep(20)
+                await asyncio.sleep(15)
             else:
                 return
 
             if self.game_active:
                 await self.provide_hint("cover image")
                 await asyncio.sleep(20)  # 再等待 10 秒
+            else:
+                return
+
+            if self.game_active:
+                await self.provide_hint("alias")
+                await asyncio.sleep(25)
             else:
                 return
 
