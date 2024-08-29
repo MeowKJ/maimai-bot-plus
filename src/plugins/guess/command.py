@@ -122,13 +122,12 @@ class GuessSongHandler:
         try:
             if await self.judge_guess(message.content):
                 await self.send_message("🎉 恭喜你，猜对了！积分+1")
-
                 await self.end_game("", True)
             else:
                 await self.send_message("❌ 猜错了，再试试吧！")
         except Exception as e:
             logger.error(f"Error during guessing: {str(e)}")
-            await self.end_game("❌ 游戏出现错误，已结束。")
+            await self.end_game("❌ 游戏在猜测环节出现程序上的错误，已结束。")
 
     async def judge_guess(self, msg):
         """
