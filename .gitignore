@@ -23,10 +23,7 @@ log/
 
 # Virtual environment
 .venv/
-
-# Static files
-static/
-tmp/
+.env
 
 # Configuration files
 config.yaml
@@ -34,3 +31,13 @@ config.py
 
 # Ignore test files
 test.py
+
+# Tmp files
+tmp/
+
+# Ignore everything in static directory
+static/*
+
+# But do not ignore the fonts directory and its contents
+!static/fonts/
+!static/fonts/**
