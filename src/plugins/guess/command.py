@@ -39,7 +39,7 @@ class GuessSongHandler:
         self.game_active = False
         self.possible_answers = []
 
-    async def start_game(self):
+    async def start_game(self, args):
         """
         开始猜歌游戏。
         """
@@ -57,7 +57,7 @@ class GuessSongHandler:
             group_game_state[self.group_id] = self  # 将实例保存到全局状态字典中
 
             while len(self.alias) < 3:
-                self.current_song = await self.choice_song()
+                self.current_song = await self.choice_song(args)
                 if not self.current_song:
                     await self.send_message("❌ 无法获取歌曲列表，请稍后再试。")
                     self.game_active = False
@@ -318,10 +318,19 @@ class GuessSongHandler:
                 del group_game_state[self.group_id]
 
     @staticmethod
-    async def choice_song():
+    async def choice_song(categories=[]):
         """
-        从曲目列表随机选择一首歌。
+        从曲目列表随机选择一首歌，根据提供的分类。
         """
+        genre_dict = {
+            "0": "maimai",
+            "1": "POPSアニメ",
+            "2": "niconicoボーカロイド",
+            "3": "ゲームバラエティ",
+            "4": "オンゲキCHUNITHM",
+            "5": "東方Project",
+        }
+
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
@@ -330,8 +339,25 @@ class GuessSongHandler:
                     if resp.status != 200:
                         logger.error(f"Error fetching song list: {resp.status}")
                         return None
+
                     data = await resp.json()
-                    return random.choice(data.get("songs"))
+                    songs = data.get("songs", [])
+
+                    if not categories:
+                        # 如果 categories 是空的，随机选择所有歌曲
+                        return random.choice(songs) if songs else None
+
+                    # 根据 categories 筛选歌曲
+                    genre_filter = set(
+                        genre_dict.get(cat) for cat in categories if cat in genre_dict
+                    )
+
+                    song_list = [
+                        song for song in songs if song["genre"] in genre_filter
+                    ]
+
+                    return random.choice(song_list) if song_list else None
+
         except Exception as e:
             logger.error(f"Error choosing song: {str(e)}")
             return None
@@ -373,8 +399,65 @@ class GuessSongHandler:
 
 async def guess(message: GroupMessage):
     logger.info(f"Received guess command from {message.author.member_openid}")
+    msg = message.content.strip().lower()
+    args = msg.split(" ")
+    categories = args[1] if len(args) > 1 else ""
+
+    help_content = (
+        "🎵 猜歌游戏指令帮助\n\n"
+        "👋 基本指令：\n"
+        "- /guess help - 获取帮助信息\n\n"
+        "🎶 开始游戏：\n"
+        "- /guess - 随机开始一个包含所有歌曲的猜歌游戏\n"
+        "- /guess 0 - 使用 Maimai 分类的歌曲开始游戏\n"
+        "- /guess 1 - 使用 流行动漫 分类的歌曲开始游戏\n"
+        "- /guess 2 - 使用 niconico & Vocaloid 分类的歌曲开始游戏\n"
+        "- /guess 3 - 使用 其他游戏 分类的歌曲开始游戏\n"
+        "- /guess 4 - 使用 音击中二 分类的歌曲开始游戏\n"
+        "- /guess 5 - 使用 东方Project 分类的歌曲开始游戏\n"
+        "- 组合分类：可以直接使用多个分类字符，例如 /guess 012\n\n"
+        "🚫 结束游戏：\n"
+        "- 不玩了 - 结束当前游戏"
+    )
+
+    category_names = {
+        "0": "Maimai",
+        "1": "流行动漫",
+        "2": "niconico & Vocaloid",
+        "3": "其他游戏",
+        "4": "音击中二",
+        "5": "东方Project",
+    }
+
+    if "help" in categories:
+        await message.reply(content=help_content)
+        return
+
+    # 筛选有效的分类字符，并去重
+    valid_categories = list(
+        dict.fromkeys(
+            category_names.get(cat) for cat in categories if cat in category_names
+        )
+    )
+
+    if not valid_categories and categories:
+        await message.reply(
+            content="❌ 请指定有效的分类或使用 /guess help 获取帮助信息"
+        )
+        return
+
+    if valid_categories:
+        if len(valid_categories) == 1:
+            response = f"🎵 选择分类{valid_categories[0]}的歌曲开始猜歌游戏"
+        else:
+            response = f"🎵 选择分类{' 和 '.join(valid_categories)}的歌曲开始猜歌游戏"
+    else:
+        response = "🎵 随机开始一个包含所有歌曲的猜歌游戏"
+
+    await message.reply(content=response)
+
     handler = GuessSongHandler(message=message)
-    await handler.start_game()
+    await handler.start_game(categories)
 
 
 # 默认处理未匹配指令的函数

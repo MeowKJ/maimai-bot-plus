@@ -4,9 +4,6 @@ alias
 
 import os
 import aiohttp
-from imagekitio import ImageKit
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
-
 from config import IMAGES_SERVER_ADDRESS
 
 from botpy import logger
