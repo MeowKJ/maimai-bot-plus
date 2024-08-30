@@ -6,4 +6,4 @@ sqlalchemy
 cryptography
 requests
 sqlalchemy
-dotenv
+python-dotenv
