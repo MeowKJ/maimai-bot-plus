@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 复制项目的 requirements 文件并安装依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # 复制项目文件到工作目录
 COPY . .
