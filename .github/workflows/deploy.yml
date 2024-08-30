@@ -39,9 +39,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/maimai_bot_plus_image:latest
-            docker stop your_container_name || true
-            docker rm your_container_name || true
-            docker run -d --name your_container_name -p 8000:8000 \
+            docker stop maimai_bot_plus_container || true
+            docker rm maimai_bot_plus_container || true
+            sudo docker run -d --name maimai_bot_plus_container \
               -v ${{ secrets.HOST_STATIC_PATH }}:/app/static \
               -v ${{ secrets.HOST_DB_PATH }}:/app/local.db \
               -e DEBUG=${{ secrets.DEBUG }} \
