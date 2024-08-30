@@ -30,7 +30,8 @@ jobs:
 
     steps:
       - name: Deploy to production server
-        uses: appleboy/ssh-action@v0.1.11
+        uses: appleboy/ssh-action@v1.0.3
+
         with:
           host: ${{ secrets.PROD_SERVER_IP }}
           username: ${{ secrets.PROD_SERVER_USER }}
