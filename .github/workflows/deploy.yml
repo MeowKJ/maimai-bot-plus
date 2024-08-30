@@ -23,32 +23,3 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/maimai_bot_plus_image:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/maimai_bot_plus_image:latest
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.0.3
-
-        with:
-          host: ${{ secrets.PROD_SERVER_IP }}
-          username: ${{ secrets.PROD_SERVER_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/maimai_bot_plus_image:latest
-            docker stop maimai_bot_plus_container || true
-            docker rm maimai_bot_plus_container || true
-            sudo docker run -d --name maimai_bot_plus_container \
-              -v ${{ secrets.HOST_STATIC_PATH }}:/app/static \
-              -v ${{ secrets.HOST_DB_PATH }}:/app/local.db \
-              -e DEBUG=${{ secrets.DEBUG }} \
-              -e ASSETS_URL=${{ secrets.ASSETS_URL }} \
-              -e HEARTBEAT_URL=${{ secrets.HEARTBEAT_URL }} \
-              -e BOT_APPID=${{ secrets.BOT_APPID }} \
-              -e BOT_SECRET=${{ secrets.BOT_SECRET }} \
-              -e LXNS_API_SECRET=${{ secrets.LXNS_API_SECRET }} \
-              -e IMAGES_SERVER_ADDRESS=${{ secrets.IMAGES_SERVER_ADDRESS }} \
-              ${{ secrets.DOCKER_USERNAME }}/maimai_bot_plus_image:latest

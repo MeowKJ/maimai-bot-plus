@@ -32,7 +32,7 @@ config.py
 # Ignore test files
 test.py
 
-# Tmp files
+# Static files
 tmp/
 
 # Ignore everything in static directory
