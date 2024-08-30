@@ -39,7 +39,7 @@ class GuessSongHandler:
         self.game_active = False
         self.possible_answers = []
 
-    async def start_game(self, args):
+    async def start_game(self, args, additional_message=""):
         """
         开始猜歌游戏。
         """
@@ -52,6 +52,8 @@ class GuessSongHandler:
                     "😅 已有一个游戏正在进行中！请等待当前游戏结束。"
                 )
                 return
+            if additional_message:
+                await self.send_message(additional_message)
 
             self.game_active = True
             group_game_state[self.group_id] = self  # 将实例保存到全局状态字典中
@@ -454,10 +456,10 @@ async def guess(message: GroupMessage):
     else:
         response = "🎵 随机开始一个包含所有歌曲的猜歌游戏"
 
-    await message.reply(content=response)
+    # await message.reply(content=response)
 
     handler = GuessSongHandler(message=message)
-    await handler.start_game(categories)
+    await handler.start_game(categories, additional_message=response)
 
 
 # 默认处理未匹配指令的函数
