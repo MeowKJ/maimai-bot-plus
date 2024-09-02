@@ -5,7 +5,7 @@ from typing import Tuple, Union
 
 from PIL import Image, ImageDraw, ImageFont
 
-from config import SIYUAN_FONT as SIYUAN
+from config import FontPaths
 
 
 class DrawText:
@@ -54,7 +54,7 @@ class DrawText:
 
 
 def text_to_image(text: str) -> Image.Image:
-    font = ImageFont.truetype(str(SIYUAN), 24)
+    font = ImageFont.truetype(str(FontPaths.SIYUAN), 24)
     padding = 10
     margin = 4
     lines = text.strip().split("\n")

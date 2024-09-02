@@ -11,7 +11,7 @@ from src.libraries.database import (
     update_user_score,
     update_user_favorite,
 )
-from src.libraries.database.exceptions import DatabaseOperationError, UserNotFoundError
+from src.libraries.database.exceptions import DatabaseOperationError
 
 from src.libraries.assets.get import assets, AssetType
 

@@ -59,7 +59,7 @@ class MyClient(Client):
         logger.info(
             f"[BOT] Received message: {message.author.username}: {message.content}"
         )
-        content = message.content.split(">")[1].strip()
+        content = message.content.split(">", maxsplit=1)[1].strip()
 
         if content.startswith("/"):
             command = content.split()[0][1:].lower()

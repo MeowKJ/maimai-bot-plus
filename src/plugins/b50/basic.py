@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-
 from typing import List, Dict
 
 SONGS_PER_PAGE: int = 25

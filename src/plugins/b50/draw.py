@@ -1,17 +1,13 @@
 import math
 import aiohttp
 from io import BytesIO
-from typing import Optional, Tuple, Union, overload
+from typing import Tuple, Union, overload
 
 from PIL import Image, ImageDraw
 from src.libraries.assets.get import assets, AssetType
 from .image import DrawText
 from .basic import *
-from config import (
-    MEIRYO_FONT,
-    SIYUAN_FONT,
-    TORUS_BOLD_FONT,
-)
+from config import FontPaths
 from .player import Player, SongData
 
 
@@ -20,9 +16,9 @@ class Draw:
     def __init__(self, image: Image.Image = None) -> None:
         self._im = image
         dr = ImageDraw.Draw(self._im)
-        self._mr = DrawText(dr, MEIRYO_FONT)
-        self._sy = DrawText(dr, SIYUAN_FONT)
-        self._tb = DrawText(dr, TORUS_BOLD_FONT)
+        self._mr = DrawText(dr, FontPaths.MEIRYO)
+        self._sy = DrawText(dr, FontPaths.SIYUAN)
+        self._tb = DrawText(dr, FontPaths.TORUS_BOLD)
 
         self.basic = Image.open(
             assets.get(AssetType.IMAGES, "b50_score_basic")

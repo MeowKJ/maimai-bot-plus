@@ -475,6 +475,7 @@ async def handle_unknown_command(message: GroupMessage):
 # 定义支持的指令及其处理函数（指令名应为小写）
 COMMANDS = {
     "guess": guess,
+    "曲绘猜歌": guess,
 }
 
 # 指令范围
