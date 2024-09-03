@@ -73,9 +73,6 @@ async def handle_bind(message: Message | GroupMessage):
             await mix_message.reply(
                 file_image=await assets.get_async(AssetType.ONGEKI, "OngekiGirls.png")
             )
-            # await message.reply(
-            #     file_image=await assets.get_async(AssetType.ONGEKI, "OngekiGirls.png")
-            # )
             return
 
         try:
@@ -90,29 +87,20 @@ async def handle_bind(message: Message | GroupMessage):
                         content=f"🎉 已成功绑定音击小女孩 {girl_number}!",
                         use_reference=True,
                     )
-                    # await message.reply(
-                    #     content=f"🎉 已成功绑定音击小女孩 {girl_number}!",
-                    #     message_reference=message_reference,
-                    # )
+
                 except Exception as e:
                     logger.error(f"绑定音击小女孩时出错: {e}")
                     await mix_message.reply(
                         content="❌ 绑定失败, 首先需要绑定查分器。",
                         use_reference=True,
                     )
-                    # await message.reply(
-                    #     content="❌ 绑定失败, 首先需要绑定查分器。",
-                    #     message_reference=message_reference,
-                    # )
+
             else:
                 await mix_message.reply(
                     content=f"❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
                     use_reference=True,
                 )
-                # await message.reply(
-                #     content="❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
-                #     message_reference=message_reference,
-                # )
+
         except ValueError:
             await mix_message.reply(
                 content=f"❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
@@ -242,7 +230,7 @@ async def handle_b50(message: Message):
         draw.save(image_path)
 
         # 压缩图片
-        compressed_image_path = f"./tmp/{username}_b50_compressed.png"
+        compressed_image_path = os.path.join("./tmp", f"{username}_b50_compressed.png")
 
         # 如果是调试模式，不压缩图片
         if not DEBUG:
