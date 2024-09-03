@@ -274,9 +274,7 @@ async def handle_b50(message: Message):
     generation_time = time.time() - start_time
 
     # 回复压缩后的图片
-    await message.reply(
-        file_image=compressed_image_path,
-    )
+    await mix_message.reply(file_image=compressed_image_path)
 
     # 回复生成成功信息
     if generation_time <= 3:
