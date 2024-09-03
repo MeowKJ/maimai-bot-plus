@@ -1,8 +1,7 @@
 import os
 import time
 import random
-from botpy.message import Message
-from botpy.types.message import Reference
+from botpy.message import Message, GroupMessage
 
 from config import LXNS_API_SECRET, DEBUG
 from src.libraries.database import (
@@ -12,6 +11,8 @@ from src.libraries.database import (
     update_user_favorite,
 )
 from src.libraries.database.exceptions import DatabaseOperationError
+
+from src.libraries.common.message.message import MixMessage
 
 from src.libraries.assets.get import assets, AssetType
 
@@ -28,11 +29,12 @@ PLATFORM_STR = ["水鱼查分器", "落雪咖啡屋"]
 
 
 # 处理 /bind 指令的异步函数
-async def handle_bind(message: Message):
-    message_reference = Reference(message_id=message.id)
+async def handle_bind(message: Message | GroupMessage):
 
-    user_id = int(message.author.id)
-    content = message.content.split("/bind", 1)[-1].strip()
+    mix_message = MixMessage(message)
+
+    user_id = mix_message.user_id
+    content = mix_message.get_args("/bind")
 
     # 如果用户没有提供绑定信息，返回绑定说明
     if not content:
@@ -52,7 +54,7 @@ async def handle_bind(message: Message):
             "💡 小提示:\n"
             "输入 `/` 可以快速唤起我。如果遇到问题，请联系频道主。"
         )
-        await message.reply(content=content)
+        await mix_message.reply(content=content, use_reference=True)
         return
 
     # 获取用户名和平台信息
@@ -61,8 +63,6 @@ async def handle_bind(message: Message):
 
     user_name = content_list[0]
 
-    print(content_list)
-    print(user_name)
     # 如果是绑定音击小女孩
     if user_name == "@OngekiGirls" and len(content_list) > 1:
 
@@ -70,9 +70,12 @@ async def handle_bind(message: Message):
         logger.info(f"[BIND]用户 {user_id} 尝试绑定音击小女孩: {args}")
 
         if args == "show":
-            await message.reply(
+            await mix_message.reply(
                 file_image=await assets.get_async(AssetType.ONGEKI, "OngekiGirls.png")
             )
+            # await message.reply(
+            #     file_image=await assets.get_async(AssetType.ONGEKI, "OngekiGirls.png")
+            # )
             return
 
         try:
@@ -83,25 +86,37 @@ async def handle_bind(message: Message):
                 girl_number = int(girl_number)
                 try:
                     update_user_favorite(user_id, girl_number)
-                    await message.reply(
+                    await mix_message.reply(
                         content=f"🎉 已成功绑定音击小女孩 {girl_number}!",
-                        message_reference=message_reference,
+                        use_reference=True,
                     )
+                    # await message.reply(
+                    #     content=f"🎉 已成功绑定音击小女孩 {girl_number}!",
+                    #     message_reference=message_reference,
+                    # )
                 except Exception as e:
                     logger.error(f"绑定音击小女孩时出错: {e}")
-                    await message.reply(
+                    await mix_message.reply(
                         content="❌ 绑定失败, 首先需要绑定查分器。",
-                        message_reference=message_reference,
+                        use_reference=True,
                     )
+                    # await message.reply(
+                    #     content="❌ 绑定失败, 首先需要绑定查分器。",
+                    #     message_reference=message_reference,
+                    # )
             else:
-                await message.reply(
-                    content="❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
-                    message_reference=message_reference,
+                await mix_message.reply(
+                    content=f"❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
+                    use_reference=True,
                 )
+                # await message.reply(
+                #     content="❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
+                #     message_reference=message_reference,
+                # )
         except ValueError:
-            await message.reply(
-                content="❌ 请输入一个有效的整数。",
-                message_reference=message_reference,
+            await mix_message.reply(
+                content=f"❌ 输入的数字无效，请输入 1 到 17 之间的整数。",
+                use_reference=True,
             )
         return
 
@@ -127,9 +142,9 @@ async def handle_bind(message: Message):
         add_or_update_user(user_id, user_name, platform_id)
     except DatabaseOperationError as e:
         logger.error(f"绑定用户时出错: {e}")
-        await message.reply(
-            content="❌ 绑定失败，由于数据库操作出错，请稍后再试。",
-            message_reference=message_reference,
+        await mix_message.reply(
+            content=f"❌ 绑定失败，由于数据库操作出错，请稍后再试。",
+            use_reference=True,
         )
 
         return
@@ -157,36 +172,36 @@ async def handle_bind(message: Message):
         )
 
     # 成功绑定后回复用户
-    await message.reply(
-        content=content,
-        message_reference=message_reference,
-    )
+    await mix_message.reply(content=content, use_reference=True)
 
 
 # 处理 /b50 指令的异步函数
 async def handle_b50(message: Message):
-    message_reference = Reference(message_id=message.id)
+
+    mix_message = MixMessage(message)
+    user_id = mix_message.user_id
+
     start_time = time.time()
-    user_id = int(message.author.id)
 
     # 尝试从数据库获取用户信息
     try:
         username, platform_id, score, favorite_id = get_user_by_id(user_id)
     except Exception:
-        await message.reply(
+        await mix_message.reply(
             content=(
                 "⚠️ 查分失败：你尚未绑定查分器账号。\n"
                 "请使用 /bind 指令绑定你的查分器账号，然后再尝试查分。\n"
             ),
-            message_reference=message_reference,
+            use_reference=True,
         )
         return
     # 初始化玩家对象
+
     player = Player(
         username,
         user_id,
         favorite_id=favorite_id,
-        avatar_url=message.author.avatar,
+        avatar_url=mix_message.avatar_url,
         api_secret=LXNS_API_SECRET,
     )
 
@@ -200,7 +215,7 @@ async def handle_b50(message: Message):
             await player.fetch_luoxue()
     except Exception as e:
         logger.error(f"获取查分器数据时出错: {e}")
-        await message.reply(
+        await mix_message.reply(
             content=(
                 "⚠️ 获取数据时出错，请检查以下事项：\n"
                 "1.确认用户名或QQ号是否正确输入。\n"
@@ -210,7 +225,7 @@ async def handle_b50(message: Message):
                 f"当前查分器平台: {PLATFORM_STR[platform_id]}\n"
                 f"用户名: {username}"
             ),
-            message_reference=message_reference,
+            use_reference=True,
         )
 
         return
@@ -239,12 +254,12 @@ async def handle_b50(message: Message):
 
     except Exception as e:
         logger.error(f"绘制或压缩图片时出错: {e}")
-        await message.reply(
+        await mix_message.reply(
             content=(
                 "⚠️ 处理图片时出错, 可能是bot被玩坏了。\n"
                 "如果这个问题持续出现，请联系频道主以获得帮助。"
             ),
-            message_reference=message_reference,
+            use_reference=True,
         )
         return
 
@@ -279,14 +294,14 @@ async def handle_b50(message: Message):
             "你的 B50 中包含了很多冷门歌曲, bot 需要花费较长时间下载资源喵~\n"
         )
 
-    await message.reply(
+    await mix_message.reply(
         content=(
             f"🎉 B50[{PLATFORM_STR[platform_id]}] 生成成功啦，耗时 {generation_time:.2f} 喵！\n"
             f"📉 压缩比: {compression_ratio:.2f}%\n"
             f"{time_message}"
             "更多有趣的统计信息可以去 Maimai 的网页查分器查看-参见频道帖子中的相关教程\n"
         ),
-        message_reference=message_reference,
+        use_reference=True,
     )
 
 
@@ -306,4 +321,4 @@ COMMANDS = {
 # 默认大写的插件名
 COMMAND_NAME = "B50"
 # 指令范围
-COMMAND_SCOPE = "channel"
+COMMAND_SCOPE = "both"

@@ -80,11 +80,10 @@ class Draw:
             else:
                 x += 416
 
-            cover = (
-                Image.open(await assets.get_async(AssetType.COVER, info.song_id))
-                .resize((135, 135))
-                .convert("RGBA")
-            )
+            cover_path = await assets.get_async(AssetType.COVER, info.song_id)
+            if not cover_path:
+                cover_path = await assets.get_async(AssetType.COVER, 0)
+            cover = Image.open(cover_path).resize((135, 135)).convert("RGBA")
             version = (
                 Image.open(
                     await assets.get_async(AssetType.IMAGES, f"{info.type.upper()}.png")

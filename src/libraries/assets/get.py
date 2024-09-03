@@ -69,7 +69,7 @@ class Assets:
         """
         param_value = str(param_value)
         if asset_type == AssetType.COVER:
-            if not param_value.isdigit() and param_value.endswith(".png"):
+            if param_value.endswith(".png"):
                 param_value = param_value[:-4]
             param_value = str(SongIDConverter.common_to_lxns_songid(int(param_value)))
 
@@ -100,7 +100,7 @@ class Assets:
         """
         param_value = str(param_value)
         if asset_type == AssetType.COVER:
-            if not param_value.isdigit() and param_value.endswith(".png"):
+            if param_value.endswith(".png"):
                 param_value = param_value[:-4]
             param_value = str(SongIDConverter.common_to_lxns_songid(int(param_value)))
 

@@ -1,6 +1,5 @@
 # my_database_lib/__init__.py
 
-from .models import Base, engine, session
 from .crud import (
     get_user_by_id,
     update_user_score,
@@ -8,4 +7,3 @@ from .crud import (
     add_or_update_user,
     update_user_favorite,
 )
-from .base62_utils import encode_base62, decode_base62

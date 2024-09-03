@@ -2,6 +2,7 @@ from botpy.message import Message, GroupMessage
 from botpy.types.message import Reference
 from botpy import logger
 from src.libraries.common.file.upload import upload_to_imagekit
+from config import DEFAULT_AVATAR_URL
 
 
 class MixMessage:
@@ -11,6 +12,7 @@ class MixMessage:
     message_type: str
     message_reference: Reference
     message_seq_id: int = 0
+    avatar_url: str = ""
 
     def __init__(self, message: GroupMessage | Message) -> None:
         """初始化 MixMessage 类，根据消息类型设置相应的属性。
@@ -22,10 +24,12 @@ class MixMessage:
         if isinstance(message, GroupMessage):
             self.group_message = message
             self.user_id = message.author.member_openid
+            self.avatar_url = DEFAULT_AVATAR_URL
             self.message_type = "group"
         else:
             self.guild_message = message
             self.user_id = message.author.id
+            self.avatar_url = message.author.avatar
             self.message_type = "guild"
 
     async def reply(
