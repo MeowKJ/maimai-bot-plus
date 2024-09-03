@@ -179,6 +179,7 @@ async def handle_b50(message: Message):
             content=(
                 "⚠️ 查分失败：你尚未绑定查分器账号。\n"
                 "请使用 /bind 指令绑定你的查分器账号，然后再尝试查分。\n"
+                "由于QQ官方限制, 频道中和Q群中的数据是独立的, 需要分别绑定。"
             ),
             use_reference=True,
         )
