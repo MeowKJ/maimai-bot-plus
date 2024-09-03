@@ -36,6 +36,7 @@ async def get_song_info(alias="", songid=0, debug=False):
     song_list = await assets.get_json(JSONType.LXNS_SONGS_INFO)
 
     if alias:
+        alias = alias.lower().replace(" ", "")
         logger.info(f"[SONGINFO] Searching for {alias}")
         # 请求 JSON 数据
         alias_data = await assets.get_json(JSONType.ALIAS)
@@ -43,11 +44,9 @@ async def get_song_info(alias="", songid=0, debug=False):
         logger.info(f"[SONGINFO] Found {len(alias_data)} aliases")
         # 查找对应的歌曲 ID
         matching_songs_id_list = [
-            int(song_id) for song_id, aliases in alias_data.items() if alias in aliases
-        ]
-        # 查找对应的歌曲 ID
-        matching_songs_id_list = [
-            int(song_id) for song_id, aliases in alias_data.items() if alias in aliases
+            int(song_id)
+            for song_id, aliases in alias_data.items()
+            if alias in [a.lower().replace(" ", "") for a in aliases]
         ]
         logger.info(f"[SONGINFO] Found {len(matching_songs_id_list)} matching songs")
         if not matching_songs_id_list:
