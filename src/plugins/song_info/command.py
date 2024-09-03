@@ -396,7 +396,7 @@ async def get_song_by_alias(message: GroupMessage | Message):
 
 async def handle_what_song(message: GroupMessage | Message):
     mix_message = MixMessage(message)
-    if "是什么歌" in mix_message.content:
+    if "是什么歌" in message.content:
         args = mix_message.get_args("是什么歌", 0)
         if args:
             logger.info(f"[SONGINFO] {args} 是什么歌")
