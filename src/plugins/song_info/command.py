@@ -372,7 +372,7 @@ async def search_by_args(args: str, mix_message: MixMessage):
             if image_url_list and len(image_url_list) > 0:
                 await mix_message.reply(file_image=image_url_list[0])
             else:
-                await mix_message.reply(content=f"😢没有找到ID=[{song_id}]的乐曲]")
+                await mix_message.reply(content=f"😢没有找到ID=[{song_id}]的乐曲")
 
         else:
             alias = args
@@ -381,7 +381,7 @@ async def search_by_args(args: str, mix_message: MixMessage):
                 for image_url in image_url_list:
                     await mix_message.reply(file_image=image_url)
             else:
-                await mix_message.reply(content=f"😢没有找到被称作为[{alias}]的乐曲]")
+                await mix_message.reply(content=f"😢没有找到被称作为[{alias}]的乐曲")
 
     except Exception as e:
         logger.error(f"[SONGINFO] Get Error {e}")
