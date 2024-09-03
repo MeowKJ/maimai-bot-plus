@@ -360,7 +360,11 @@ async def get_song_info(alias="", songid=0, debug=False):
 
 async def search_by_args(args: str, mix_message: MixMessage):
     if not args:
-        await mix_message.reply(content="请输入歌曲别名或ID")
+        await mix_message.reply(
+            content=(
+                "请输入歌曲别名或ID\n" "例如：/查歌 xxx\n" "你也可以直接问xxx是什么歌\n"
+            )
+        )
     try:
         if args.isdigit():
             song_id = int(args)
