@@ -392,10 +392,11 @@ async def get_song_by_alias(message: GroupMessage | Message):
 
 async def handle_what_song(message: GroupMessage | Message):
     mix_message = MixMessage(message)
-    args = mix_message.get_args("是什么歌", 0)
-    if args:
-        logger.info(f"[SONGINFO] {args} 是什么歌")
-        await search_by_args(args, mix_message)
+    if "是什么歌" in mix_message.content:
+        args = mix_message.get_args("是什么歌", 0)
+        if args:
+            logger.info(f"[SONGINFO] {args} 是什么歌")
+            await search_by_args(args, mix_message)
     return False
 
 
