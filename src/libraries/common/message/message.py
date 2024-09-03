@@ -46,7 +46,6 @@ class MixMessage:
             if use_reference:
                 await self.guild_message.reply(
                     content=content,
-                    file_image=file_image,
                     message_reference=self.message_reference,
                 )
             else:
@@ -54,7 +53,7 @@ class MixMessage:
         elif self.message_type == "group":
             if file_image:
                 image_url = await upload_to_imagekit(file_image)
-
+                logger.info(f"Upload image to SERVER: {image_url}")
                 # 上传图片的URL到群文件管理
                 upload_media = await self.group_message._api.post_group_file(
                     group_openid=self.group_message.group_openid,

@@ -226,19 +226,18 @@ async def handle_b50(message: Message):
         # 保存图片到文件
         if not os.path.exists("./tmp"):
             os.makedirs("./tmp")
-        image_path = f"./tmp/{username}_b50.png"
-        draw.save(image_path)
+        image_path = f"./tmp/{username}_b50.jpg"
+        # if DEBUG:
+        #     # 压缩图片
+        #     draw.save(image_path, quality=50)
+        if draw.mode in ("RGBA", "LA"):
+            draw = draw.convert("RGB")
+        draw.save(image_path, "JPEG", quality=60)
 
         # 压缩图片
-        compressed_image_path = os.path.join("./tmp", f"{username}_b50_compressed.png")
+        # compressed_image_path = os.path.join("./tmp", f"{username}_b50_compressed.jpg")
 
         # 如果是调试模式，不压缩图片
-        if not DEBUG:
-            compression_ratio = await compress_png(image_path, compressed_image_path)
-        else:
-            draw.show()
-            compression_ratio = 0
-            compressed_image_path = image_path
 
     except Exception as e:
         logger.error(f"绘制或压缩图片时出错: {e}")
@@ -262,7 +261,7 @@ async def handle_b50(message: Message):
     generation_time = time.time() - start_time
 
     # 回复压缩后的图片
-    await mix_message.reply(file_image=compressed_image_path)
+    await mix_message.reply(file_image=image_path)
 
     # 回复生成成功信息
     if generation_time <= 3:
@@ -283,7 +282,6 @@ async def handle_b50(message: Message):
     await mix_message.reply(
         content=(
             f"🎉 B50[{PLATFORM_STR[platform_id]}] 生成成功啦，耗时 {generation_time:.2f} 喵！\n"
-            f"📉 压缩比: {compression_ratio:.2f}%\n"
             f"{time_message}"
             "更多有趣的统计信息可以去 Maimai 的网页查分器查看-参见频道帖子中的相关教程\n"
         ),
