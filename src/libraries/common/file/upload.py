@@ -3,7 +3,7 @@ import aiohttp
 from config import IMAGES_SERVER_ADDRESS
 
 
-async def upload_to_imagekit(file_path):
+async def upload_to_image_server(file_path):
     """
     将本地图片上传到自己的服务器，并返回图片的URL。
     """

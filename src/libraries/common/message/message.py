@@ -1,7 +1,7 @@
 from botpy.message import Message, GroupMessage
 from botpy.types.message import Reference
 from botpy import logger
-from src.libraries.common.file.upload import upload_to_imagekit
+from src.libraries.common.file.upload import upload_to_image_server
 from config import DEFAULT_AVATAR_URL
 
 
@@ -52,7 +52,7 @@ class MixMessage:
                 await self.guild_message.reply(content=content, file_image=file_image)
         elif self.message_type == "group":
             if file_image:
-                image_url = await upload_to_imagekit(file_image)
+                image_url = await upload_to_image_server(file_image)
                 logger.info(f"Upload image to SERVER: {image_url}")
                 # 上传图片的URL到群文件管理
                 upload_media = await self.group_message._api.post_group_file(

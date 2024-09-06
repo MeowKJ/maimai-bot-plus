@@ -14,7 +14,7 @@ from src.libraries.assets.get import assets, AssetType
 from .tools import (
     get_alias_by_id,
     get_version_name,
-    upload_to_imagekit,
+    upload_to_image_server,
     translate_to_chinese,
 )
 
@@ -90,7 +90,7 @@ class GuessSongHandler:
         try:
             if image:
                 # 上传图片到 ImageKit 并获取URL
-                image_url = await upload_to_imagekit(image)
+                image_url = await upload_to_image_server(image)
                 # image_url = image
                 if not image_url:
                     await self.message.reply(content="图片上传失败，请稍后再试。")
