@@ -97,7 +97,7 @@ async def get_song_info(alias="", songid=0, debug=False):
     for song_info in split_songs_list:
         print(f"Processing Song: {song_info.title}")
         # 加载背景图像
-        bg = Image.open(await assets.get_async(AssetType.SONGINFO, "song_bg.png"))
+        bg = Image.open(await assets.get_async(AssetType.SONGINFO, "songinfo_bg.png"))
 
         draw = ImageDraw.Draw(bg)
 
