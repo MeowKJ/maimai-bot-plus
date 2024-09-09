@@ -179,7 +179,7 @@ class Song:
     song_type: SongType
 
     # 获取地图
-    _map: str
+    _map: str = ""
 
     # 铺面列表
     difficulties: List[SongDifficulty]
