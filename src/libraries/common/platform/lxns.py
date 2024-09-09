@@ -11,7 +11,7 @@ class SongIDConverter:
         int: LXNS格式的歌曲ID。
         """
         if 10000 <= song_id < 100000:
-            return song_id - 10000
+            return song_id % 10000
         return song_id
 
     @staticmethod

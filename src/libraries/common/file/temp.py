@@ -43,7 +43,11 @@ class TempFileManager:
         return temp_file.name, file_name
 
     def create_temp_image_file(
-        self, image: Image.Image, suffix: str = ".png", prefix: str = "temp_image_"
+        self,
+        image: Image.Image,
+        suffix: str = ".png",
+        prefix: str = "temp_image_",
+        quality: int = 80,
     ) -> tuple[str, str]:
         """Creates a temporary file from a PIL.Image object and saves it as an image file.
 
@@ -58,7 +62,15 @@ class TempFileManager:
         temp_file = tempfile.NamedTemporaryFile(
             delete=False, suffix=suffix, prefix=prefix, dir=self.temp_dir
         )
-        image.save(temp_file.name)
+        if suffix == ".png":
+            image.save(temp_file.name, "PNG")
+        elif suffix == ".jpg":
+            # OSError: cannot write mode RGBA as JPEG
+            if image.mode == "RGBA":
+                image = image.convert("RGB")
+            image.save(temp_file.name, "JPEG", quality=quality)
+        else:
+            image.save(temp_file.name)
         file_name: str = os.path.basename(temp_file.name)
         return temp_file.name, file_name
 

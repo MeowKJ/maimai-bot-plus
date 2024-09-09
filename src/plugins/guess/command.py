@@ -464,7 +464,6 @@ async def guess(message: GroupMessage):
 
 # 默认处理未匹配指令的函数
 async def handle_unknown_command(message: GroupMessage):
-    logger.info(f"Us: {message.content}")
     group_id = message.group_openid
     if group_id in group_game_state:
         await group_game_state[group_id].guess_song(message)

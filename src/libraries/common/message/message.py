@@ -2,7 +2,7 @@ from botpy.message import Message, GroupMessage
 from botpy.types.message import Reference
 from botpy import logger
 from src.libraries.common.file.upload import upload_to_image_server
-from config import DEFAULT_AVATAR_URL
+from config import DEFAULT_AVATAR_URL, DEBUG
 
 
 class MixMessage:
@@ -31,6 +31,8 @@ class MixMessage:
             self.user_id = message.author.id
             self.avatar_url = message.author.avatar
             self.message_type = "guild"
+        if DEBUG:
+            self.message_seq_id = 100
 
     async def reply(
         self, content: str = "", file_image: str = "", use_reference: bool = False
@@ -53,7 +55,7 @@ class MixMessage:
         elif self.message_type == "group":
             if file_image:
                 image_url = await upload_to_image_server(file_image)
-                logger.info(f"Upload image to SERVER: {image_url}")
+                logger.info(f"[MixMSG]Upload image to SERVER: {image_url}")
                 # 上传图片的URL到群文件管理
                 upload_media = await self.group_message._api.post_group_file(
                     group_openid=self.group_message.group_openid,
