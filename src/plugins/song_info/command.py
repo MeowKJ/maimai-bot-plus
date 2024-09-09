@@ -5,11 +5,12 @@ from botpy.message import GroupMessage, Message
 from botpy import logger
 
 from src.libraries.common.message.message import MixMessage
-from src.libraries.assets.get import assets, JSONType
+from src.libraries.assets import assets, JSONType
 
 from src.libraries.common.file.temp import TempFileManager
 
 from src.libraries.common.game.maimai import Song
+
 from .draw import create_selected_song_image, create_song_info_image
 
 

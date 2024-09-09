@@ -4,7 +4,7 @@ from io import BytesIO
 from typing import Tuple, Union, overload
 
 from PIL import Image, ImageDraw
-from src.libraries.assets.get import assets, AssetType
+from src.libraries.assets import assets, AssetType
 from .image import DrawText
 from .basic import *
 from config import FontPaths

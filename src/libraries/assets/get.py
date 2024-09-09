@@ -5,8 +5,8 @@ from enum import Enum
 import aiohttp
 import requests
 from botpy import logger
-from config import ASSETS_URL
-from src.libraries.common.platform.lxns import SongIDConverter
+
+from src.libraries.common.game.maimai import MaimaiHelper
 
 
 class AssetType(Enum):
@@ -71,7 +71,7 @@ class Assets:
         if asset_type == AssetType.COVER:
             if param_value.endswith(".png"):
                 param_value = param_value[:-4]
-            param_value = str(SongIDConverter.common_to_lxns_songid(int(param_value)))
+            param_value = str(MaimaiHelper.common_to_lxns_songid(int(param_value)))
 
         if asset_type == AssetType.IMAGES and not param_value.lower().endswith(
             (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
@@ -102,7 +102,7 @@ class Assets:
         if asset_type == AssetType.COVER:
             if param_value.endswith(".png"):
                 param_value = param_value[:-4]
-            param_value = str(SongIDConverter.common_to_lxns_songid(int(param_value)))
+            param_value = str(MaimaiHelper.common_to_lxns_songid(int(param_value)))
 
         if asset_type == AssetType.IMAGES and not param_value.lower().endswith(
             (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
@@ -209,7 +209,3 @@ class Assets:
                 with open(save_path, "wb") as file:
                     file.write(content)
                 logger.info(f"[ASSETS] 从 {url} 下载并保存文件到 {save_path}")
-
-
-# 获取 Assets 类的单例实例
-assets = Assets(base_url=ASSETS_URL, assets_folder="static")

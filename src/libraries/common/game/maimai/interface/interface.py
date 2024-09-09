@@ -1,6 +1,6 @@
-from .types.types import *
+from typing import Dict
 
-from src.libraries.assets.get import assets
+from .types.types import *
 
 
 class Interface:

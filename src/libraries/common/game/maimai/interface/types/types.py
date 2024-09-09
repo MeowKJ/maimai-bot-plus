@@ -1,6 +1,9 @@
+from typing import List
+
 import aiohttp
 from botpy import logger
-from src.libraries.common.platform.lxns import SongIDConverter
+
+from ...maimai import MaimaiHelper
 from .enums import *
 
 
@@ -202,7 +205,7 @@ class Song:
         """
         丰富歌曲信息
         """
-        lxns_id = SongIDConverter.common_to_lxns_songid(self.id)
+        lxns_id = MaimaiHelper.common_to_lxns_songid(self.id)
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"https://maimai.lxns.net/api/v0/maimai/song/{lxns_id}"

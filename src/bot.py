@@ -1,6 +1,5 @@
 import os
 import importlib
-import logging
 
 from botpy import Client
 from botpy.message import Message, GroupMessage
@@ -53,7 +52,10 @@ class MyClient(Client):
                             )
 
                 except Exception as e:
-                    logger.error(f"[BOT] Error loading module '{module_name}': {e}")
+                    # 打印跟踪报错文件具体位置
+                    logger.error(
+                        f"[BOT] Error loading module '{module_name}': {e} in {module_path}"
+                    )
 
     async def on_at_message_create(self, message: Message):
         logger.info(

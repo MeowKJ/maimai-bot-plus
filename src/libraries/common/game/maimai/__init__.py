@@ -3,4 +3,4 @@ from .interface.platform.fish import DivingFishInterface
 from .interface.platform.lxns import LxnsInterface
 from .interface.types.enums import *
 from .interface.types.types import *
-from .maimai import rating_generator
+from .maimai import MaimaiHelper

@@ -3,7 +3,7 @@ import time
 import random
 from botpy.message import Message, GroupMessage
 
-from config import LXNS_API_SECRET, DEBUG
+from config import LXNS_API_SECRET
 from src.libraries.database import (
     add_or_update_user,
     get_user_by_id,
@@ -14,9 +14,9 @@ from src.libraries.database.exceptions import DatabaseOperationError
 
 from src.libraries.common.message.message import MixMessage
 
-from src.libraries.assets.get import assets, AssetType
+from src.libraries.assets import assets, AssetType
 
-from .tools import is_fish_else_lxns, compress_png
+from .tools import is_fish_else_lxns
 from .player import Player
 from .draw import DrawBest
 

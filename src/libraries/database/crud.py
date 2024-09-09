@@ -1,4 +1,3 @@
-import logging
 from typing import Tuple, Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, Session

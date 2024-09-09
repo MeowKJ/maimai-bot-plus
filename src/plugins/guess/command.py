@@ -8,9 +8,9 @@ import aiohttp
 import time
 
 from PIL import Image
-from botpy import Client
 from botpy.message import GroupMessage
-from src.libraries.assets.get import assets, AssetType
+from src.libraries.assets import assets, AssetType
+
 from .tools import (
     get_alias_by_id,
     get_version_name,
@@ -268,7 +268,7 @@ class GuessSongHandler:
             elif hint_type == "alias":
                 if self.alias:
                     if len(self.alias) > 5:
-                        one_alias = random.choice(self.alias)
+                        one_alias = random.choice(self.alias[1:])
                         if one_alias:
                             self.alias.remove(one_alias)
                             await self.send_message(

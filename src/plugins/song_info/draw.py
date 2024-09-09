@@ -1,25 +1,20 @@
-import time
-import aiohttp
-from typing import List, Dict, Any
-from pathlib import Path
+from typing import List
 from PIL import Image, ImageDraw, ImageFont
 
-from botpy.message import GroupMessage, Message
 from botpy import logger
 
-from src.libraries.common.message.message import MixMessage
-from src.libraries.common.platform.lxns import SongIDConverter
-from src.libraries.assets.get import assets, AssetType, JSONType
-from src.libraries.common.images.text import (
+from src.libraries.assets import assets, AssetType, JSONType
+from src.libraries.common.images import (
     draw_truncated_text,
     draw_centered_text,
     draw_centered_truncated_text,
 )
-from src.libraries.common.file.temp import TempFileManager
-from config import FontPaths, BOT_NAME, DEBUG, VERSION
 
 from src.libraries.common.game.maimai import Song, SongType
-from src.libraries.common.game.maimai import rating_generator
+from src.libraries.common.game.maimai import MaimaiHelper
+
+from config import FontPaths, BOT_NAME, DEBUG, VERSION
+
 
 COVER_ADDR_MAP = {
     "maimai": "info-maimai.png",
@@ -301,7 +296,9 @@ async def create_song_info_image(song: Song) -> Image:
                 300,
                 (0, 0, 0),
             )
-            for j, (grade, rating) in enumerate(rating_generator(difficulty.level)):
+            for j, (grade, rating) in enumerate(
+                MaimaiHelper.rating_generator(difficulty.level)
+            ):
                 color = (0, 0, 0)
                 if rating > 280:
                     color = (218, 165, 32)
