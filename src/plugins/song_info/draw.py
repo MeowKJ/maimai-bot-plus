@@ -19,7 +19,7 @@ from src.libraries.common.file.temp import TempFileManager
 from config import FontPaths, BOT_NAME, DEBUG, VERSION
 
 from src.libraries.common.game.maimai import Song, SongType
-from src.libraries.common.game.maimai.maimai import rating_generator
+from src.libraries.common.game.maimai import rating_generator
 
 COVER_ADDR_MAP = {
     "maimai": "info-maimai.png",
