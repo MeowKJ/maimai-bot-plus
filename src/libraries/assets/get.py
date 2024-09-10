@@ -6,7 +6,20 @@ import aiohttp
 import requests
 from botpy import logger
 
-from src.libraries.common.game.maimai import MaimaiHelper
+
+def common_to_lxns_songid(song_id: int) -> int:
+    """
+    将普通歌曲ID转换为LXNS格式的歌曲ID。
+
+    参数:
+    song_id (int): 普通歌曲ID
+
+    返回:
+    int: LXNS格式的歌曲ID。
+    """
+    if 10000 <= song_id < 100000:
+        return song_id % 10000
+    return song_id
 
 
 class AssetType(Enum):
@@ -71,7 +84,7 @@ class Assets:
         if asset_type == AssetType.COVER:
             if param_value.endswith(".png"):
                 param_value = param_value[:-4]
-            param_value = str(MaimaiHelper.common_to_lxns_songid(int(param_value)))
+            param_value = str(common_to_lxns_songid(int(param_value)))
 
         if asset_type == AssetType.IMAGES and not param_value.lower().endswith(
             (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
@@ -102,7 +115,7 @@ class Assets:
         if asset_type == AssetType.COVER:
             if param_value.endswith(".png"):
                 param_value = param_value[:-4]
-            param_value = str(MaimaiHelper.common_to_lxns_songid(int(param_value)))
+            param_value = str(common_to_lxns_songid(int(param_value)))
 
         if asset_type == AssetType.IMAGES and not param_value.lower().endswith(
             (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")

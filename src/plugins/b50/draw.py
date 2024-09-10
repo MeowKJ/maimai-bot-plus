@@ -8,7 +8,7 @@ from src.libraries.assets import assets, AssetType
 from .image import DrawText
 from .basic import *
 from config import FontPaths, VERSION
-from .player import Player, SongData
+from .player import Player, SongDifficulty
 
 
 class Draw:
@@ -57,7 +57,7 @@ class Draw:
 
     async def whiledraw(
         self,
-        data: SongData,
+        data: List[SongDifficulty],
         best: bool,
     ) -> None:
 
@@ -80,50 +80,41 @@ class Draw:
             else:
                 x += 416
 
-            cover_path = await assets.get_async(AssetType.COVER, info.song_id)
+            cover_path = await assets.get_async(AssetType.COVER, info.id)
             if not cover_path:
                 cover_path = await assets.get_async(AssetType.COVER, 0)
             cover = Image.open(cover_path).resize((135, 135)).convert("RGBA")
             version = (
                 Image.open(
-                    await assets.get_async(AssetType.IMAGES, f"{info.type.upper()}.png")
+                    await assets.get_async(
+                        AssetType.IMAGES, f"{info.song_type.value}.png"
+                    )
                 )
                 .resize((55, 19))
                 .convert("RGBA")
             )
 
-            if info.rating_icon.islower():
+            if info.user_score.rate:
                 rate = (
                     Image.open(
                         await assets.get_async(
                             AssetType.IMAGES,
-                            f"UI_TTR_Rank_{score_Rank_l[info.rating_icon]}.png",
+                            f"UI_TTR_Rank_{score_Rank_l[info.user_score.rate.value]}.png",
                         )
                     )
                     .resize((95, 44))
                     .convert("RGBA")
                 )
-            else:
-                rate = (
-                    Image.open(
-                        await assets.get_async(
-                            AssetType.IMAGES,
-                            f"UI_TTR_Rank_{score_Rank_l[info.rating_icon]}.png",
-                        )
-                    )
-                    .resize((95, 44))
-                    .convert("RGBA")
-                )
-
             self._im.alpha_composite(self._diff[info.level_index], (x, y))
             self._im.alpha_composite(cover, (x + 5, y + 5))
             self._im.alpha_composite(version, (x + 80, y + 141))
             self._im.alpha_composite(rate, (x + 150, y + 98))
-            if info.fc:
+            if info.user_score.fc.value:
                 fc = (
                     Image.open(
                         await assets.get_async(
-                            AssetType.IMAGES, f"UI_MSS_MBase_Icon_{fcl[info.fc]}.png"
+                            AssetType.IMAGES,
+                            f"UI_MSS_MBase_Icon_{fcl[info.user_score.fc.value]}.png",
                         )
                     )
                     .resize((45, 45))
@@ -131,11 +122,12 @@ class Draw:
                 )
 
                 self._im.alpha_composite(fc, (x + 246, y + 99))
-            if info.fs:
+            if info.user_score.fs.value:
                 fs = (
                     Image.open(
                         await assets.get_async(
-                            AssetType.IMAGES, f"UI_MSS_MBase_Icon_{fsl[info.fs]}.png"
+                            AssetType.IMAGES,
+                            f"UI_MSS_MBase_Icon_{fsl[info.user_score.fs.value]}.png",
                         )
                     )
                     .resize((45, 45))
@@ -146,8 +138,8 @@ class Draw:
 
             # dxscore = info.dx_score
             dxnum = 0
-            if info.total_dxscore != 0:
-                dxnum = dxScore(info.dx_score / info.total_dxscore * 100)
+            if info.dx_rating_max != 0:
+                dxnum = dxScore(info.user_score.rating / info.dx_rating_max * 100)
             if dxnum:
                 self._im.alpha_composite(
                     Image.open(
@@ -163,7 +155,7 @@ class Draw:
                 x + 40,
                 y + 148,
                 20,
-                info.song_id,
+                info.id,
                 TEXT_COLOR[info.level_index],
                 anchor="mm",
             )
@@ -177,7 +169,7 @@ class Draw:
                 x + 155,
                 y + 50,
                 32,
-                f"{info.achievements:.4f}%",
+                f"{info.user_score.achievement:.4f}%",
                 TEXT_COLOR[info.level_index],
                 anchor="lm",
             )
@@ -185,7 +177,7 @@ class Draw:
                 x + 338,
                 y + 82,
                 20,
-                f"{info.dx_score}/{info.total_dxscore}",
+                f"{info.user_score.dx_score}/{info.dx_rating_max}",
                 TEXT_COLOR[info.level_index],
                 anchor="mm",
             )
@@ -193,7 +185,7 @@ class Draw:
                 x + 155,
                 y + 82,
                 22,
-                f"{info.ds} -> {info.rating}",
+                f"{info.level} -> {info.user_score.rating}",
                 TEXT_COLOR[info.level_index],
                 anchor="lm",
             )
@@ -208,6 +200,7 @@ class DrawBest(Draw):
         self.userName = UserInfo.nickname
         self.plate = UserInfo.name_plate
         self.course_rank = UserInfo.course_rank
+        self.class_rank = UserInfo.class_rank
         self.Rating = UserInfo.rating
         self.sdBest = UserInfo.song_data_b35
         self.dxBest = UserInfo.song_data_b15
@@ -271,16 +264,7 @@ class DrawBest(Draw):
         Name = Image.open(await assets.get_async(AssetType.IMAGES, "Name.png")).convert(
             "RGBA"
         )
-        MatchLevel = (
-            Image.open(await assets.get_async(AssetType.COURSE_RANK, self.course_rank))
-            .resize((134, 55))
-            .convert("RGBA")
-        )
-        ClassLevel = (
-            Image.open(await assets.get_async(AssetType.IMAGES, "UI_FBR_Class_00.png"))
-            .resize((144, 87))
-            .convert("RGBA")
-        )
+
         rating = (
             Image.open(
                 await assets.get_async(AssetType.IMAGES, "UI_CMN_Shougou_Rainbow.png")
@@ -352,13 +336,33 @@ class DrawBest(Draw):
             )
 
         self._im.alpha_composite(Name, (x_offset + 620, 200))
-        self._im.alpha_composite(MatchLevel, (x_offset + 935, 205))
-        self._im.alpha_composite(ClassLevel, (x_offset + 926, 105))
+
+        if self.course_rank:
+            MatchLevel = (
+                Image.open(
+                    await assets.get_async(AssetType.COURSE_RANK, self.course_rank)
+                )
+                .resize((134, 55))
+                .convert("RGBA")
+            )
+            self._im.alpha_composite(MatchLevel, (x_offset + 935, 205))
+
+        if self.class_rank:
+
+            ClassLevel = (
+                Image.open(
+                    await assets.get_async(AssetType.CLASS_RANK, self.class_rank)
+                )
+                .resize((144, 87))
+                .convert("RGBA")
+            )
+            self._im.alpha_composite(ClassLevel, (x_offset + 926, 105))
+
         self._im.alpha_composite(rating, (x_offset + 620, 275))
 
         self._sy.draw(x_offset + 635, 235, 40, self.userName, (0, 0, 0, 255), "lm")
-        sdrating, dxrating = sum([_.rating for _ in self.sdBest]), sum(
-            [_.rating for _ in self.dxBest]
+        sdrating, dxrating = sum([_.user_score.rating for _ in self.sdBest]), sum(
+            [_.user_score.rating for _ in self.dxBest]
         )
         self._tb.draw(
             x_offset + 847,

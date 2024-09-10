@@ -7,9 +7,38 @@ from ...maimai import MaimaiHelper
 from .enums import *
 
 
+class UserInfo:
+    username: str
+    avatar: str
+    rating: int
+    course_rank: int
+    class_rank: int
+    trophy: str
+    nameplate_id: int
+    frame_id: int
+
+    def __init__(
+        self,
+        username: str,
+        avatar: str,
+        rating: int,
+        course_rank: int,
+        class_rank: int,
+        trophy: str,
+        nameplate_id: int,
+        frame_id: int,
+    ):
+        self.username = username
+        self.avatar = avatar
+        self.rating = rating
+        self.course_rank = course_rank
+        self.class_rank = class_rank
+        self.trophy = trophy
+        self.nameplate_id = nameplate_id
+        self.frame_id = frame_id
+
+
 class UserDifficultyScore:
-    # 歌曲ID
-    id: int
 
     # 铺面序号
     level_index: SongLevel
@@ -23,8 +52,23 @@ class UserDifficultyScore:
     # 难度等级ra分数
     rating: int
 
-    # DX分数
-    dx_rating: int
+    # fc
+    fc: FCType
+
+    # fs
+    fs: FSType
+
+    # 铺面分数
+    dx_score: int
+
+    def __init__(self, *args, **kwargs):
+        self.level_index = kwargs.get("level_index", SongLevel.BASIC)
+        self.achievement = kwargs.get("achievement", 0)
+        self.rate = kwargs.get("rate", SongRateType.D)
+        self.rating = kwargs.get("rating", 0)
+        self.fc = kwargs.get("fc", FCType.NONE)
+        self.fs = kwargs.get("fs", FSType.NONE)
+        self.dx_score = kwargs.get("dx_score", 0)
 
 
 class Notes:
@@ -82,6 +126,15 @@ class BuddyNotes:
 
 
 class SongDifficulty:
+    # 乐曲 ID
+    id: int
+
+    # 乐曲类型
+    song_type: SongType
+
+    # 乐曲名称
+    title: str
+
     # 难度等级(定数)
     level: float
 
@@ -104,12 +157,24 @@ class SongDifficulty:
     notes: Notes
 
     # 玩家成绩
-    user_socre: UserDifficultyScore
+    user_score: UserDifficultyScore
 
     def __init__(self, *args, **kwargs):
         self.level = kwargs.get("level", 0)
         self.level_index = kwargs.get("level_index", SongLevel.BASIC)
         self.note_designer = kwargs.get("note_designer", "-")
+        self.id = kwargs.get("id", 0)
+        self.title = kwargs.get("title", "")
+
+        if "song_type" in kwargs:
+            self.song_type = kwargs.get("song_type", SongType.STANDARD)
+        else:
+            if self.id < 10000:
+                self.song_type = SongType.STANDARD
+            elif self.id < 100000:
+                self.song_type = SongType.DX
+            else:
+                self.song_type = SongType.UTAGE
 
         # level_lable
         # 如果没有传入level_lable,则通过level计算

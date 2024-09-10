@@ -11,7 +11,7 @@ from src.libraries.common.images import (
 )
 
 from src.libraries.common.game.maimai import Song, SongType
-from src.libraries.common.game.maimai import MaimaiHelper
+from src.libraries.common.game.maimai.maimai import MaimaiHelper
 
 from config import FontPaths, BOT_NAME, DEBUG, VERSION
 

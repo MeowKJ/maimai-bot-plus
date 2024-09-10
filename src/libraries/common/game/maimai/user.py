@@ -1,50 +1,24 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 
-from .interface.interface import Interface
 from .interface.platform.fish import DivingFishInterface
 from .interface.platform.lxns import LxnsInterface
 
 # 枚举
-from .interface.types.enums import *
-from .interface.types.types import *
+from .interface.types.enums import MaimaiUserPlatform
+from .interface.types.types import Song, UserInfo
 
 from config import LXNS_API_SECRET
 
 
 class MaimaiUser:
+    """代表一个 Maimai 用户的类"""
 
-    # 用户平台
+    # 用户属性定义
     user_platform: int
-
-    # 用户ID
     id: str
 
-    # 用户名称
-    username: str
-
-    # 用户头像(图片地址)
-    avatar: str
-
-    # 用户Rating
-    rating: int
-
-    # 用户course_rank(段位, 初学者0, 初段-十段1-10, 真初段-真十段12-21)
-    course_rank: int
-
-    # 用户友人对战等级(1-B4)
-    class_rank: int
-
-    # 用户称号
-    trophy: str
-
-    # 用户姓名框ID
-    nameplate_id: int
-
-    # 用户背景版ID
-    frame_id: int
-
     # 成绩接口
-    interface: Interface | DivingFishInterface | LxnsInterface
+    interface: Union[DivingFishInterface, LxnsInterface]
 
     def __init__(self, id: str, user_platform: int) -> None:
         """初始化 MaimaiUser 类。
@@ -52,42 +26,55 @@ class MaimaiUser:
         Args:
             id (str): 用户ID。
             user_platform (int): 用户平台。
-
         """
         self.id = id
         self.user_platform = user_platform
+        self.interface = self._initialize_interface(user_platform)
+
+    def _initialize_interface(
+        self, user_platform: int
+    ) -> Union[DivingFishInterface, LxnsInterface]:
+        """初始化对应的接口。
+
+        Args:
+            user_platform (int): 用户平台。
+
+        Returns:
+            Union[DivingFishInterface, LxnsInterface]: 对应的接口实例。
+        """
         if user_platform == MaimaiUserPlatform.DIVING_FISH.value:
-            self.interface = DivingFishInterface(id, user_platform)
+            return DivingFishInterface(self.id, user_platform)
         elif user_platform == MaimaiUserPlatform.LXNS.value:
-            self.interface = LxnsInterface(id, user_platform, LXNS_API_SECRET)
+            return LxnsInterface(self.id, user_platform, LXNS_API_SECRET)
         else:
             raise ValueError("Invalid user platform.")
 
-    async def fetch_single_song_socre(self, song_id: int) -> Song:
+    async def fetch_single_song_score(self, song_id: int) -> Union[Song, None]:
         """获取单曲成绩。
 
         Args:
             song_id (int): 歌曲ID。
 
+        Returns:
+            Union[Song, None]: 单曲成绩对象或 None。
         """
         if not song_id:
             return None
-        return await self.interface.fetch_single_song_socre(song_id)
+        return await self.interface.fetch_single_song_score(song_id)
 
-    async def fetch(self, user_info: Dict[str, Any]) -> None:
-        """获取用户信息。
+    async def fetch_best50_song_score(self) -> Dict[str, Union[UserInfo, List[Song]]]:
+        """获取B50成绩。
 
-        Args:
-            user_info (Dict[str, Any]): 用户信息。
-
+        Returns:
+            tuple[List[Song], List[Song]]: B50成绩列表。
         """
+        return await self.interface.fetch_best50_song_score()
 
     def __str__(self) -> str:
         """返回用户名称。
 
         Returns:
             str: 用户名称。
-
         """
         return self.username or self.id
 
@@ -96,7 +83,6 @@ class MaimaiUser:
 
         Returns:
             str: 用户名称。
-
         """
         return self.username or self.id
 
@@ -108,7 +94,6 @@ class MaimaiUser:
 
         Returns:
             bool: 是否相等。
-
         """
         if not isinstance(other, MaimaiUser):
             return False
@@ -119,11 +104,15 @@ class MaimaiUser:
 
         Returns:
             int: 用户的哈希值。
-
         """
         return hash((self.id, self.user_platform))
 
     def to_dict(self) -> Dict[str, Any]:
+        """将用户对象转换为字典。
+
+        Returns:
+            Dict[str, Any]: 包含用户属性的字典。
+        """
         return {
             "id": self.id,
             "user_platform": self.user_platform,
