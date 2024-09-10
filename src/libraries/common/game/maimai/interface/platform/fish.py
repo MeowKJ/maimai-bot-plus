@@ -73,7 +73,7 @@ class DivingFishInterface(Interface):
 
             user_score = UserDifficultyScore(
                 level_index=song_data["level_index"],
-                achievement=song_data["achievements"],
+                achievements=song_data["achievements"],
                 rate=SongRateType.get_type_by_name(song_data["rate"]),
                 rating=int(song_data["ra"]),
                 fc=FCType.get_type_by_name(song_data["fc"]),
@@ -97,7 +97,7 @@ class DivingFishInterface(Interface):
 
             user_score = UserDifficultyScore(
                 level_index=song_data["level_index"],
-                achievement=song_data["achievements"],
+                achievements=song_data["achievements"],
                 rate=SongRateType.get_type_by_name(song_data["rate"]),
                 rating=int(song_data["ra"]),
                 fc=FCType.get_type_by_name(song_data["fc"]),

@@ -7,3 +7,5 @@ cryptography
 requests
 sqlalchemy
 python-dotenv
+pytest
+pytest-asyncio

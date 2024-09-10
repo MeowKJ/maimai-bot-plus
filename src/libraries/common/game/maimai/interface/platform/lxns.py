@@ -20,7 +20,7 @@ BASE_API = "https://maimai.lxns.net/api/v0/maimai"
 
 
 class LxnsInterface(Interface):
-    friend_code: str
+    friend_code: str = None
     lxns_api: str
 
     def __init__(self, id: str, platform_id: str, lxns_api: str):
@@ -29,7 +29,7 @@ class LxnsInterface(Interface):
 
     async def _get_friend_code(self):
         async with aiohttp.ClientSession() as session:
-            url = BASE_API + "/player/qq/" + self.id
+            url = f"{BASE_API}/player/qq/{self.id}"
             async with session.get(
                 url=url,
                 headers={"Authorization": self.lxns_api},
@@ -40,17 +40,93 @@ class LxnsInterface(Interface):
                 else:
                     self.friend_code = None
 
-    async def fetch_single_song_score(self, id: int) -> Song:
+    async def fetch_user_info(self) -> UserInfo:
+        """获取用户信息。
+
+        Returns:
+            UserInfo: 用户信息。
+        """
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                BASE_API + f"/player/qq/{self.id}",
+                headers={"Authorization": self.lxns_api},
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    data = data["data"]
+                    logger.info(f"[LXNS] 用户信息获取成功: {self.id}")
+                else:
+                    logger.error(
+                        f"[LXNS] 用户信息获取失败: {self.id} {response.status}"
+                    )
+                    return None
+        return UserInfo(
+            username=data.get("name", "未知"),
+            avatar=str(data.get("icon", {}).get("id", "")),
+            rating=data.get("rating", 0),
+            course_rank=data.get("course_rank", 0),
+            class_rank=data.get("class_rank", 0),
+            trophy=data.get("trophy", {}).get("name", ""),
+            nameplate_id=data.get("name_plate", {}).get("id"),
+            frame_id=data.get("frame", {}).get("id"),
+        )
+
+    # async def fetch_single_song_score(self, id: int, **kwargs) -> Song:
+
+    #     if not self.friend_code:
+    #         await self._get_friend_code()
+    #     if id < 10000:
+    #         song_id = id
+    #         song_type = SongType.STANDARD.value
+    #     elif id < 100000:
+    #         song_id = id % 10000
+    #         song_type = SongType.DX.value
+    #     else:
+    #         song_id = id
+    #         song_type = SongType.UTAGE.value
+
+    #     async with aiohttp.ClientSession() as session:
+    #         async with session.get(
+    #             BASE_API + f"/player/{self.friend_code}/bests/",
+    #             headers={"Authorization": self.lxns_api},
+    #             params={"song_id": song_id, "song_type": song_type},
+    #         ) as response:
+    #             if response.status == 200:
+    #                 data = await response.json()
+    #                 data = data["data"]
+    #             else:
+    #                 return None
+    #     song = Song(id)
+
+    #     if kwargs.get("enrich", True):
+    #         await song.enrich()
+
+    #     for score in data:
+    #         user_difficulty_score = UserDifficultyScore(
+    #             level_index=score["level_index"],
+    #             achievements=score["achievements"],
+    #             dx_score=score["dx_score"],
+    #             rating=int(score["dx_rating"]),
+    #             rate=SongRateType.get_type_by_name(score["rate"]),
+    #             fc=FCType.get_type_by_name(score["fc"]),
+    #             fs=FSType.get_type_by_name(score["fs"]),
+    #         )
+    #         song.add_user_score(user_difficulty_score)
+
+    #     return song
+
+    async def append_user_score(self, song: Song) -> Song:
+
         if not self.friend_code:
             await self._get_friend_code()
-        if id < 10000:
-            song_id = id
+        if song.id < 10000:
+            song_id = song.id
             song_type = SongType.STANDARD.value
-        elif id < 100000:
-            song_id = id % 10000
+        elif song.id < 100000:
+            song_id = song.id % 10000
             song_type = SongType.DX.value
         else:
-            song_id = id
+            song_id = song.id
             song_type = SongType.UTAGE.value
 
         async with aiohttp.ClientSession() as session:
@@ -65,8 +141,18 @@ class LxnsInterface(Interface):
                 else:
                     return None
 
-        song = Song(id)
-        await song.enrich()
+        for score in data:
+            user_difficulty_score = UserDifficultyScore(
+                level_index=score["level_index"],
+                achievements=score["achievements"],
+                dx_score=score["dx_score"],
+                rating=int(score["dx_rating"]),
+                rate=SongRateType.get_type_by_name(score["rate"]),
+                fc=FCType.get_type_by_name(score["fc"]),
+                fs=FSType.get_type_by_name(score["fs"]),
+            )
+            song.add_user_score(user_difficulty_score)
+
         return song
 
     async def fetch_best50_song_score(self) -> Dict[str, Union[UserInfo, List[Song]]]:
@@ -187,7 +273,7 @@ class LxnsInterface(Interface):
 
             user_difficulty_score = UserDifficultyScore(
                 level_index=song.level_index,
-                achievement=lx_song["achievements"],
+                achievements=lx_song["achievements"],
                 dx_score=lx_song["dx_score"],
                 rating=int(lx_song["dx_rating"]),
                 rate=SongRateType.get_type_by_name(lx_song["rate"]),
@@ -212,7 +298,7 @@ class LxnsInterface(Interface):
 
             user_difficulty_score = UserDifficultyScore(
                 level_index=song.level_index,
-                achievement=lx_song["achievements"],
+                achievements=lx_song["achievements"],
                 dx_score=lx_song["dx_score"],
                 rating=int(lx_song["dx_rating"]),
                 rate=SongRateType.get_type_by_name(lx_song["rate"]),

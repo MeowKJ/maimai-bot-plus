@@ -44,7 +44,7 @@ class UserDifficultyScore:
     level_index: SongLevel
 
     # 难度等级达成率
-    achievement: float
+    achievements: float
 
     # 难度等级评价
     rate: SongRateType
@@ -53,17 +53,17 @@ class UserDifficultyScore:
     rating: int
 
     # fc
-    fc: FCType
+    fc: FCType = FCType.NONE
 
     # fs
-    fs: FSType
+    fs: FSType = FSType.NONE
 
     # 铺面分数
     dx_score: int
 
     def __init__(self, *args, **kwargs):
         self.level_index = kwargs.get("level_index", SongLevel.BASIC)
-        self.achievement = kwargs.get("achievement", 0)
+        self.achievements = kwargs.get("achievements", 0)
         self.rate = kwargs.get("rate", SongRateType.D)
         self.rating = kwargs.get("rating", 0)
         self.fc = kwargs.get("fc", FCType.NONE)
@@ -157,7 +157,7 @@ class SongDifficulty:
     notes: Notes
 
     # 玩家成绩
-    user_score: UserDifficultyScore
+    user_score: UserDifficultyScore = None
 
     def __init__(self, *args, **kwargs):
         self.level = kwargs.get("level", 0)
@@ -318,6 +318,18 @@ class Song:
             self._append_difficulty(difficulty)
         return True
 
+    def add_user_score(self, user_score: UserDifficultyScore):
+        """
+        添加玩家成绩
+
+        Args:
+            user_score (UserDifficultyScore): 玩家成绩
+        """
+        for difficulty in self.difficulties:
+            if difficulty.level_index == user_score.level_index:
+                difficulty.user_score = user_score
+                break
+
     def _append_difficulty(self, difficulty: SongDifficulty):
         """
         添加铺面
@@ -326,3 +338,6 @@ class Song:
             difficulty (SongDifficulty): 铺面
         """
         self.difficulties.append(difficulty)
+
+    def __str__(self):
+        return f"{self.title} - {self.genre}"

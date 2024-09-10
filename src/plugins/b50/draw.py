@@ -169,7 +169,7 @@ class Draw:
                 x + 155,
                 y + 50,
                 32,
-                f"{info.user_score.achievement:.4f}%",
+                f"{info.user_score.achievements:.4f}%",
                 TEXT_COLOR[info.level_index],
                 anchor="lm",
             )
@@ -477,73 +477,73 @@ def changeColumnWidth(s: str, len: int) -> str:
 
 
 @overload
-def computeRa(ds: float, achievement: float) -> int:
+def computeRa(ds: float, achievements: float) -> int:
     """
     - `ds`: 定数
-    - `achievement`: 成绩
+    - `achievements`: 成绩
     """
 
 
 @overload
-def computeRa(ds: float, achievement: float, *, onlyrate: bool = False) -> str:
+def computeRa(ds: float, achievements: float, *, onlyrate: bool = False) -> str:
     """
     - `ds`: 定数
-    - `achievement`: 成绩
+    - `achievements`: 成绩
     - `onlyrate`: 返回评价
     """
 
 
 @overload
 def computeRa(
-    ds: float, achievement: float, *, israte: bool = False
+    ds: float, achievements: float, *, israte: bool = False
 ) -> Tuple[int, str]:
     """
     - `ds`: 定数
-    - `achievement`: 成绩
+    - `achievements`: 成绩
     - `israte`: 返回元组 (底分, 评价)
     """
 
 
 def computeRa(
-    ds: float, achievement: float, *, onlyrate: bool = False, israte: bool = False
+    ds: float, achievements: float, *, onlyrate: bool = False, israte: bool = False
 ) -> Union[int, Tuple[int, str]]:
-    if achievement < 50:
+    if achievements < 50:
         baseRa = 7.0
         rate = "D"
-    elif achievement < 60:
+    elif achievements < 60:
         baseRa = 8.0
         rate = "C"
-    elif achievement < 70:
+    elif achievements < 70:
         baseRa = 9.6
         rate = "B"
-    elif achievement < 75:
+    elif achievements < 75:
         baseRa = 11.2
         rate = "BB"
-    elif achievement < 80:
+    elif achievements < 80:
         baseRa = 12.0
         rate = "BBB"
-    elif achievement < 90:
+    elif achievements < 90:
         baseRa = 13.6
         rate = "A"
-    elif achievement < 94:
+    elif achievements < 94:
         baseRa = 15.2
         rate = "AA"
-    elif achievement < 97:
+    elif achievements < 97:
         baseRa = 16.8
         rate = "AAA"
-    elif achievement < 98:
+    elif achievements < 98:
         baseRa = 20.0
         rate = "S"
-    elif achievement < 99:
+    elif achievements < 99:
         baseRa = 20.3
         rate = "Sp"
-    elif achievement < 99.5:
+    elif achievements < 99.5:
         baseRa = 20.8
         rate = "SS"
-    elif achievement < 100:
+    elif achievements < 100:
         baseRa = 21.1
         rate = "SSp"
-    elif achievement < 100.5:
+    elif achievements < 100.5:
         baseRa = 21.6
         rate = "SSS"
     else:
@@ -551,10 +551,10 @@ def computeRa(
         rate = "SSSp"
 
     if israte:
-        data = (math.floor(ds * (min(100.5, achievement) / 100) * baseRa), rate)
+        data = (math.floor(ds * (min(100.5, achievements) / 100) * baseRa), rate)
     elif onlyrate:
         data = rate
     else:
-        data = math.floor(ds * (min(100.5, achievement) / 100) * baseRa)
+        data = math.floor(ds * (min(100.5, achievements) / 100) * baseRa)
 
     return data

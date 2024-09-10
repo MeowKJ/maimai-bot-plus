@@ -51,7 +51,12 @@ class MixMessage:
                     message_reference=self.message_reference,
                 )
             else:
-                await self.guild_message.reply(content=content, file_image=file_image)
+                if file_image:
+                    await self.guild_message.reply(
+                        content=content, file_image=file_image
+                    )
+                else:
+                    await self.guild_message.reply(content=content)
         elif self.message_type == "group":
             if file_image:
                 image_url = await upload_to_image_server(file_image)
@@ -96,7 +101,9 @@ class MixMessage:
         if self.message_type == "group":
             message_content = self.group_message.content
         elif self.message_type == "guild":
-            message_content = self.guild_message.content
+            message_content = self.guild_message.content.split(">", maxsplit=1)[
+                1
+            ].strip()
         else:
             return ""
 

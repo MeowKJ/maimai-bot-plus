@@ -62,7 +62,6 @@ class MyClient(Client):
             f"[BOT] Received message: {message.author.username}: {message.content}"
         )
         content = message.content.split(">", maxsplit=1)[1].strip()
-
         if content.startswith("/"):
             command = content.split()[0][1:].lower()
             if command in self.channel_commands:

@@ -80,7 +80,7 @@ levelList: List[str] = [
     "14+",
     "15",
 ]
-achievementList: List[float] = [
+achievementsList: List[float] = [
     50.0,
     60.0,
     70.0,

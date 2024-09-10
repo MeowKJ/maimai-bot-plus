@@ -49,18 +49,33 @@ class MaimaiUser:
         else:
             raise ValueError("Invalid user platform.")
 
-    async def fetch_single_song_score(self, song_id: int) -> Union[Song, None]:
-        """获取单曲成绩。
+    # async def fetch_single_song_score(
+    #     self, song_id: int, **kwargs
+    # ) -> Union[Song, None]:
+    #     """获取单曲成绩。
+
+    #     Args:
+    #         song_id (int): 歌曲ID。
+    #         **kwargs: 传递给下一个函数的其他参数。
+
+    #     Returns:
+    #         Union[Song, None]: 单曲成绩对象或 None。
+    #     """
+    #     if not song_id:
+    #         return None
+    #     # 将 song_id 传入，并把 kwargs 传递给下一个函数
+    #     return await self.interface.fetch_single_song_score(song_id, **kwargs)
+
+    async def append_user_score(self, song: Song) -> Song:
+        """追加用户成绩。
 
         Args:
-            song_id (int): 歌曲ID。
+            song (Song): 歌曲对象。
 
         Returns:
-            Union[Song, None]: 单曲成绩对象或 None。
+            Song: 歌曲对象。
         """
-        if not song_id:
-            return None
-        return await self.interface.fetch_single_song_score(song_id)
+        return await self.interface.append_user_score(song)
 
     async def fetch_best50_song_score(self) -> Dict[str, Union[UserInfo, List[Song]]]:
         """获取B50成绩。
@@ -70,58 +85,18 @@ class MaimaiUser:
         """
         return await self.interface.fetch_best50_song_score()
 
+    async def fetch_user_info(self) -> UserInfo:
+        """获取用户信息。
+
+        Returns:
+            UserInfo: 用户信息。
+        """
+        return await self.interface.fetch_user_info()
+
     def __str__(self) -> str:
         """返回用户名称。
 
         Returns:
             str: 用户名称。
         """
-        return self.username or self.id
-
-    def __repr__(self) -> str:
-        """返回用户名称。
-
-        Returns:
-            str: 用户名称。
-        """
-        return self.username or self.id
-
-    def __eq__(self, other: Any) -> bool:
-        """判断两个用户是否相等。
-
-        Args:
-            other (Any): 另一个用户。
-
-        Returns:
-            bool: 是否相等。
-        """
-        if not isinstance(other, MaimaiUser):
-            return False
-        return self.id == other.id and self.user_platform == other.user_platform
-
-    def __hash__(self) -> int:
-        """返回用户的哈希值。
-
-        Returns:
-            int: 用户的哈希值。
-        """
-        return hash((self.id, self.user_platform))
-
-    def to_dict(self) -> Dict[str, Any]:
-        """将用户对象转换为字典。
-
-        Returns:
-            Dict[str, Any]: 包含用户属性的字典。
-        """
-        return {
-            "id": self.id,
-            "user_platform": self.user_platform,
-            "username": self.username,
-            "avatar": self.avatar,
-            "rating": self.rating,
-            "course_rank": self.course_rank,
-            "class_rank": self.class_rank,
-            "trophy": self.trophy,
-            "nameplate_id": self.nameplate_id,
-            "frame_id": self.frame_id,
-        }
+        return str(self.id)

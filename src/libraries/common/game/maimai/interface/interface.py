@@ -15,6 +15,9 @@ class Interface:
     async def fetch_single_song_score(self, song_id: int) -> Song:
         pass
 
+    async def append_user_score(self, song: Song) -> Song:
+        pass
+
     async def fetch_b50_data(self) -> Dict[str, Song]:
         pass
 
