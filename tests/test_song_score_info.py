@@ -9,7 +9,7 @@ from src.plugins.song_info.draw import create_song_info_image
 @pytest.mark.asyncio
 async def test_create_song_info_image_show():
     # 创建 MaimaiUser 并获取一个 Song 对象
-    user = MaimaiUser(1379724301, 1)
+    user = MaimaiUser(0, 1)
     print(user)
 
     song = await user.fetch_single_song_score(11165)
