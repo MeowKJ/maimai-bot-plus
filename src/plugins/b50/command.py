@@ -25,6 +25,7 @@ from botpy import logger
 # 定义查分平台的常量
 FISH = 0
 LXNS = 1
+NONE = -1
 PLATFORM_STR = ["水鱼查分器", "落雪咖啡屋"]
 
 
@@ -59,10 +60,34 @@ async def handle_bind(message: Message | GroupMessage):
 
     # 获取用户名和平台信息
     content_list_raw = content.split(" ")
-    content_list = [item for item in content_list_raw if item]
 
-    user_name = content_list[0]
+    platform_id = NONE
 
+    content_list = [item for item in content_list_raw if item != ""]
+    if content_list[-1] == "f":
+        platform_id = FISH
+        content_list.pop()
+    elif content_list[-1] == "l":
+        platform_id = LXNS
+        content_list.pop()
+
+    if len(content_list) > 1:
+        has_space = True
+    else:
+        has_space = False
+
+    user_name = " ".join(content_list)
+
+    if platform_id == NONE:
+        # 根据用户名自动判断平台
+        if is_fish_else_lxns(user_name):
+            platform_id = FISH
+        else:
+            platform_id = LXNS
+
+    logger.info(
+        f"[BIND]用户 {user_id} 尝试绑定: {user_name} 平台: {PLATFORM_STR[platform_id]}"
+    )
     # 如果是绑定音击小女孩
     if user_name == "@OngekiGirls" and len(content_list) > 1:
 
@@ -110,21 +135,6 @@ async def handle_bind(message: Message | GroupMessage):
 
     # 绑定音击小女孩结束
 
-    # 默认为水鱼查分器
-    platform_id = FISH
-
-    # 如果输入了平台参数，则判断平台
-    if len(content_list) > 1:
-        platform_arg = content_list[1]
-        if platform_arg.startswith("l"):
-            platform_id = LXNS
-        else:
-            platform_id = FISH
-    else:
-        # 根据用户名自动判断平台
-        if not is_fish_else_lxns(user_name):
-            platform_id = LXNS
-
     # 尝试绑定用户到数据库
     try:
         add_or_update_user(user_id, user_name, platform_id)
@@ -147,6 +157,10 @@ async def handle_bind(message: Message | GroupMessage):
         "📊 你可以使用 /b50 指令来查分。\n"
         "⏳ 提示: 初次查分时, 可能需要稍作等待, 因为bot需要下载缺失的资源。"
     )
+    if has_space:
+        content += (
+            "\n💡 注意: 你的用户名中存在空格, 为了兼容性, bot保留了一个这个空格。"
+        )
 
     # 8 分之一的概率显示隐藏内容
     if random.randint(1, 8) == 1:
