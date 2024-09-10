@@ -12,7 +12,7 @@ class Interface:
     async def fetch_user(self) -> None:
         pass
 
-    async def fetch_single_song_socre(self, song_id: int) -> Song:
+    async def fetch_single_song_score(self, song_id: int) -> Song:
         pass
 
     async def fetch_b50_data(self) -> Dict[str, Song]:

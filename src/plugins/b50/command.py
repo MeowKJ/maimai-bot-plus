@@ -19,6 +19,8 @@ from src.libraries.common.file import TempFileManager
 
 from src.libraries.assets import assets, AssetType
 
+from src.libraries.common.game.maimai import *
+
 from .tools import is_fish_else_lxns
 from .player import Player
 from .draw import DrawBest
@@ -92,8 +94,8 @@ async def handle_bind(message: Message | GroupMessage):
         f"[BIND]用户 {user_id} 尝试绑定: {user_name} 平台: {PLATFORM_STR[platform_id]}"
     )
     # 如果是绑定音击小女孩
-    if user_name == "@OngekiGirls" and len(content_list) > 1:
-
+    if user_name.startswith("@OngekiGirls"):
+        content_list = user_name.split(" ")
         args = content_list[1]
         logger.info(f"[BIND]用户 {user_id} 尝试绑定音击小女孩: {args}")
 
@@ -201,24 +203,19 @@ async def handle_b50(message: Message):
             use_reference=True,
         )
         return
-    # 初始化玩家对象
 
     player = Player(
         username,
         user_id,
         favorite_id=favorite_id,
         avatar_url=mix_message.avatar_url,
-        api_secret=LXNS_API_SECRET,
     )
 
     # 获取查分器数据
     try:
-        if platform_id == FISH:
-            logger.info(f"用户 {user_id} 使用水鱼查分器")
-            await player.fetch_divingfish()
-        elif platform_id == LXNS:
-            logger.info(f"用户 {user_id} 使用落雪咖啡屋")
-            await player.fetch_luoxue()
+        # 初始化玩家对象
+        maimai_player = MaimaiUser(id=username, user_platform=platform_id)
+        await player.enrich(maimai_player)
     except Exception as e:
         logger.error(f"获取查分器数据时出错: {e}")
         await mix_message.reply(
@@ -233,18 +230,20 @@ async def handle_b50(message: Message):
             ),
             use_reference=True,
         )
-
         return
-
     # 绘制和压缩图片
     try:
         drawBest = DrawBest(player)
         draw = await drawBest.draw()
 
         temp_manager = TempFileManager()
-        temp_file, _ = temp_manager.create_temp_image_file(draw, ".jpg", quality=80)
+        if mix_message.message_type == "group":
+            temp_file, _ = temp_manager.create_temp_image_file(draw, ".jpg", quality=70)
+        else:
+            temp_file, _ = temp_manager.create_temp_image_file(draw, ".jpg", quality=90)
 
     except Exception as e:
+
         logger.error(f"绘制或压缩图片时出错: {e}")
         await mix_message.reply(
             content=(
@@ -289,6 +288,7 @@ async def handle_b50(message: Message):
             f"🎉 B50[{PLATFORM_STR[platform_id]}] 生成成功啦，耗时 {generation_time:.2f} 喵！\n"
             f"{time_message}"
             "更多有趣的统计信息可以去 Maimai 的网页查分器查看-参见频道帖子中的相关教程\n"
+            "如果有任何问题或建议，请联系频道主。"
         ),
         use_reference=True,
     )

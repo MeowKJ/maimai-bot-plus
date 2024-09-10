@@ -28,6 +28,25 @@ class SongType(Enum):
     DX = "dx"  # DX 铺面
     UTAGE = "utage"  # 宴会场铺面
 
+    @staticmethod
+    def get_type_by_name(name: str) -> "SongType":
+        """通过名称获取歌曲类型。
+
+        Args:
+            name (str): 歌曲类型名称。
+
+        Returns:
+            SongType: 歌曲类型枚举对象。
+        """
+        if name.lower() == "standard" or name.lower() == "std" or name.lower() == "sd":
+            return SongType.STANDARD
+        elif name.lower() == "dx":
+            return SongType.DX
+        elif name == "utage":
+            return SongType.UTAGE
+        else:
+            return SongType.STANDARD
+
 
 # 枚举：铺面难度对应的字符
 class SongLevelText(Enum):
@@ -125,6 +144,47 @@ class SongRateType(Enum):
     C = "c"  # C 级评级
     D = "d"  # D 级评级
 
+    @staticmethod
+    def get_type_by_name(name: str) -> "SongRateType":
+        """通过名称获取铺面评级。
+
+        Args:
+            name (str): 铺面评级名称。
+
+        Returns:
+            SongRateType: 铺面评级枚举对象。
+        """
+        if name == "sssp":
+            return SongRateType.SSS_PLUS
+        elif name == "sss":
+            return SongRateType.SSS
+        elif name == "ssp":
+            return SongRateType.SS_PLUS
+        elif name == "ss":
+            return SongRateType.SS
+        elif name == "sp":
+            return SongRateType.S_PLUS
+        elif name == "s":
+            return SongRateType.S
+        elif name == "aaa":
+            return SongRateType.AAA
+        elif name == "aa":
+            return SongRateType.AA
+        elif name == "a":
+            return SongRateType.A
+        elif name == "bbb":
+            return SongRateType.BBB
+        elif name == "bb":
+            return SongRateType.BB
+        elif name == "b":
+            return SongRateType.B
+        elif name == "c":
+            return SongRateType.C
+        elif name == "d":
+            return SongRateType.D
+        else:
+            return SongRateType.D
+
 
 class FSType(Enum):
     """FS 类型枚举类。
@@ -142,6 +202,30 @@ class FSType(Enum):
     FULL_SYNC_DX = "fsd"  # FULL COMBO DX
     FULL_SYNC_DX_PLUS = "fsdp"  # FULL COMBO DX SHINY
     SYNC = "sync"  # SYNC
+    NONE = ""  # 无
+
+    @staticmethod
+    def get_type_by_name(name: str) -> "FSType":
+        """通过名称获取 FS 类型。
+
+        Args:
+            name (str): FS 类型名称。
+
+        Returns:
+            FSType: FS 类型枚举对象。
+        """
+        if name == "fs":
+            return FSType.FULL_SNYC
+        elif name == "fsp":
+            return FSType.FULL_SNYC_PLUS
+        elif name == "fsd":
+            return FSType.FULL_SYNC_DX
+        elif name == "fsdp":
+            return FSType.FULL_SYNC_DX_PLUS
+        elif name == "sync":
+            return FSType.SYNC
+        else:
+            return FSType.NONE
 
 
 class FCType(Enum):
@@ -158,5 +242,27 @@ class FCType(Enum):
     FULL_COMBO_PLUS = "fcp"  # FULL COMBO SHINY
     ALL_PERFECT = "ap"  # ALL PERFECT
     ALL_PERFECT_PLUS = "app"  # ALL PERFECT SHINY
+    NONE = ""  # 无
+
+    @staticmethod
+    def get_type_by_name(name: str) -> "FCType":
+        """通过名称获取 FC 类型。
+
+        Args:
+            name (str): FC 类型名称。
+
+        Returns:
+            FCType: FC 类型枚举对象。
+        """
+        if name == "fc":
+            return FCType.FULL_COMBO
+        elif name == "fcp":
+            return FCType.FULL_COMBO_PLUS
+        elif name == "ap":
+            return FCType.ALL_PERFECT
+        elif name == "app":
+            return FCType.ALL_PERFECT_PLUS
+        else:
+            return FCType.NONE
 
     # 版本映射字典
