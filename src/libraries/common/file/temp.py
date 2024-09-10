@@ -113,3 +113,30 @@ class TempFileManager:
             if os.path.isfile(file_path):
                 os.remove(file_path)
         print(f"All temporary files in {self.temp_dir} have been deleted.")
+
+
+# 示例用法
+# if __name__ == "__main__":
+#     from PIL import Image
+
+#     temp_manager = TempFileManager()
+
+#     # 创建一个临时文件并写入数据，同时获取路径和文件名
+#     file_path, file_name = temp_manager.create_temp_file(data="Hello, temporary world!")
+#     print(f"Temporary file created at: {file_path} with name: {file_name}")
+
+#     # 创建一个临时图像文件
+#     example_image = Image.new("RGB", (100, 100), color=(73, 109, 137))
+#     image_path, image_name = temp_manager.create_temp_image_file(example_image)
+#     print(f"Temporary image file created at: {image_path} with name: {image_name}")
+
+#     # 读取临时文件的数据
+#     content = temp_manager.read_temp_file(file_path)
+#     print(f"Content of the temporary file: {content}")
+
+#     # 删除临时文件
+#     temp_manager.delete_temp_file(file_path)
+#     print(f"Temporary file {file_path} deleted.")
+
+#     # 清理临时目录
+#     temp_manager.cleanup()
