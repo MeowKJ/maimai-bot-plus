@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 from typing import Dict
 
-from .types.types import *
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..song import Song
 
 
 class Interface:

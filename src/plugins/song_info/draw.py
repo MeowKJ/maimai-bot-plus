@@ -80,7 +80,7 @@ async def get_song_info_id_list_from_alias(alias: str) -> List[int]:
     ]
 
 
-async def create_selected_song_image(song_data_list: List[Song]) -> Image:
+async def create_selected_song_image(song_data_list: List[Song]) -> Image.Image:
     font_id = ImageFont.truetype(FontPaths.TORUS_BOLD, 40)
     font_title = ImageFont.truetype(FontPaths.HANYI, 25)
     image_height_per_entry = 120
@@ -136,7 +136,7 @@ async def create_selected_song_image(song_data_list: List[Song]) -> Image:
     return result_image
 
 
-async def create_song_info_image(song: Song) -> Image:
+async def create_song_info_image(song: Song) -> Image.Image:
     logger.info(f"[SONGINFO] Creating image for {song.id}...")
 
     # 加载背景图像
@@ -349,7 +349,9 @@ async def create_song_info_image(song: Song) -> Image:
     return bg
 
 
-async def create_song_score_image(song: Song, user_info: UserInfo = None) -> Image:
+async def create_song_score_image(
+    song: Song, user_info: UserInfo = None
+) -> Image.Image:
 
     font_color_basic = (18, 55, 139)
 

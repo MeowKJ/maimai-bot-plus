@@ -12,6 +12,7 @@ __pycache__/
 # Logs and temporary files
 log/
 *.log
+bot.log.*
 
 # Sensitive and binary files
 *.psd
@@ -41,3 +42,7 @@ static/*
 # But do not ignore the fonts directory and its contents
 !static/fonts/
 !static/fonts/**
+
+# Pytest
+pytest.ini
+.pytest_cache/

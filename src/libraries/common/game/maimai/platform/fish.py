@@ -1,21 +1,22 @@
-from typing import Dict, List, Union
+from __future__ import annotations
+
+from typing import Dict, List, Union, TYPE_CHECKING
 
 import aiohttp
 from botpy import logger
-from ..interface import Interface
-from ..types.types import (
-    Song,
-    SongType,
-    UserInfo,
-    SongDifficulty,
-    UserDifficultyScore,
-    FSType,
-    FCType,
-    SongRateType,
-)
-from ...maimai import MaimaiHelper
-
 from src.libraries.assets import assets, JSONType
+
+from .interface import Interface
+
+from ..enums import *
+from .._types import UserInfo, SongDifficulty, UserDifficultyScore
+
+if TYPE_CHECKING:
+    from ..song import Song
+
+
+from ..maimai import MaimaiHelper
+
 
 BASE_API = "https://www.diving-fish.com/api/maimaidxprober/query"
 

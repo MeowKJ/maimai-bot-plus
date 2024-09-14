@@ -1,6 +1,6 @@
-from .interface.interface import Interface
-from .interface.platform.fish import DivingFishInterface
-from .interface.platform.lxns import LxnsInterface
-from .interface.types.enums import *
-from .interface.types.types import *
+from .platform import Interface, DivingFishInterface, LxnsInterface
+from .song import Song
+from ._types import *
+from .enums import *
 from .user import MaimaiUserPlatform, MaimaiUser
+from .maimai import MaimaiHelper

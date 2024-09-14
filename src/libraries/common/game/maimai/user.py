@@ -1,11 +1,14 @@
-from typing import Any, Dict, List, Union
+from __future__ import annotations
 
-from .interface.platform.fish import DivingFishInterface
-from .interface.platform.lxns import LxnsInterface
+from typing import Dict, List, Union, TYPE_CHECKING
 
-# 枚举
-from .interface.types.enums import MaimaiUserPlatform
-from .interface.types.types import Song, UserInfo
+from .platform import DivingFishInterface, LxnsInterface
+
+from ._types import MaimaiUserPlatform
+
+if TYPE_CHECKING:
+    from ._types import UserInfo
+    from .song import Song
 
 from config import LXNS_API_SECRET
 

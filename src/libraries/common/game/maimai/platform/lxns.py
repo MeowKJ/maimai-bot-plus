@@ -1,20 +1,19 @@
-from typing import Dict, List, Union
+from __future__ import annotations
 
+from typing import Dict, List, Union, TYPE_CHECKING
 import aiohttp
+
 from botpy import logger
-from ..interface import Interface
-from ..types.types import (
-    Song,
-    SongType,
-    UserInfo,
-    SongDifficulty,
-    UserDifficultyScore,
-    FSType,
-    FCType,
-    SongRateType,
-)
-from ...maimai import MaimaiHelper
-from src.libraries.assets import assets, JSONType, AssetType
+
+from .interface import Interface
+from ..enums import *
+from .._types import UserInfo, SongDifficulty, UserDifficultyScore
+
+if TYPE_CHECKING:
+    from ..song import Song
+
+from ..maimai import MaimaiHelper
+from src.libraries.assets import assets, JSONType
 
 BASE_API = "https://maimai.lxns.net/api/v0/maimai"
 
@@ -70,50 +69,6 @@ class LxnsInterface(Interface):
             nameplate_id=data.get("name_plate", {}).get("id"),
             frame_id=data.get("frame", {}).get("id"),
         )
-
-    # async def fetch_single_song_score(self, id: int, **kwargs) -> Song:
-
-    #     if not self.friend_code:
-    #         await self._get_friend_code()
-    #     if id < 10000:
-    #         song_id = id
-    #         song_type = SongType.STANDARD.value
-    #     elif id < 100000:
-    #         song_id = id % 10000
-    #         song_type = SongType.DX.value
-    #     else:
-    #         song_id = id
-    #         song_type = SongType.UTAGE.value
-
-    #     async with aiohttp.ClientSession() as session:
-    #         async with session.get(
-    #             BASE_API + f"/player/{self.friend_code}/bests/",
-    #             headers={"Authorization": self.lxns_api},
-    #             params={"song_id": song_id, "song_type": song_type},
-    #         ) as response:
-    #             if response.status == 200:
-    #                 data = await response.json()
-    #                 data = data["data"]
-    #             else:
-    #                 return None
-    #     song = Song(id)
-
-    #     if kwargs.get("enrich", True):
-    #         await song.enrich()
-
-    #     for score in data:
-    #         user_difficulty_score = UserDifficultyScore(
-    #             level_index=score["level_index"],
-    #             achievements=score["achievements"],
-    #             dx_score=score["dx_score"],
-    #             rating=int(score["dx_rating"]),
-    #             rate=SongRateType.get_type_by_name(score["rate"]),
-    #             fc=FCType.get_type_by_name(score["fc"]),
-    #             fs=FSType.get_type_by_name(score["fs"]),
-    #         )
-    #         song.add_user_score(user_difficulty_score)
-
-    #     return song
 
     async def append_user_score(self, song: Song) -> Song:
 

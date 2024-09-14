@@ -9,3 +9,5 @@ sqlalchemy
 python-dotenv
 pytest
 pytest-asyncio
+plotly
+kaleido
