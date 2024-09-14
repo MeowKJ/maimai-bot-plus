@@ -136,10 +136,8 @@ class Draw:
 
                 self._im.alpha_composite(fs, (x + 291, y + 99))
 
-            # dxscore = info.dx_score
-            dxnum = 0
-            if info.dx_rating_max != 0:
-                dxnum = dxScore(info.user_score.rating / info.dx_rating_max * 100)
+            dxnum = info.get_dx_score_num()
+
             if dxnum:
                 self._im.alpha_composite(
                     Image.open(
@@ -173,11 +171,17 @@ class Draw:
                 TEXT_COLOR[info.level_index],
                 anchor="lm",
             )
+
+            dxsocre_text = (
+                f"{info.user_score.dx_score}/{info.dx_rating_max}"
+                if info.user_score.dx_score
+                else str(info.dx_rating_max)
+            )
             self._tb.draw(
                 x + 338,
                 y + 82,
                 20,
-                f"{info.user_score.dx_score}/{info.dx_rating_max}",
+                dxsocre_text,
                 TEXT_COLOR[info.level_index],
                 anchor="mm",
             )
@@ -389,25 +393,6 @@ class DrawBest(Draw):
         await self.whiledraw(self.dxBest, False)
 
         return self._im.resize((1760, 2000))
-
-
-def dxScore(dx: int) -> int:
-    """
-    返回值为 `Tuple`： `(星星种类，数量)`
-    """
-    if dx <= 85:
-        result = 0
-    elif dx <= 90:
-        result = 1
-    elif dx <= 93:
-        result = 2
-    elif dx <= 95:
-        result = 3
-    elif dx <= 97:
-        result = 4
-    else:
-        result = 5
-    return result
 
 
 def getCharWidth(o) -> int:

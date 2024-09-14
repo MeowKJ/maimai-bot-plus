@@ -194,6 +194,31 @@ class SongDifficulty:
             self.notes = kwargs.get("notes", Notes())
             self.dx_rating_max = self.notes.caculate_dx_score()
 
+    def get_dx_score_num(self) -> int:
+        """
+        获取DX分数等级
+
+        Returns:
+            int: DX分数
+        """
+
+        if self.dx_rating_max and self.user_score.dx_score:
+            dx_score_num = self.user_score.dx_score / self.dx_rating_max
+            if dx_score_num <= 0.85:
+                return 0
+            elif dx_score_num <= 0.90:
+                return 1
+            elif dx_score_num <= 0.93:
+                return 2
+            elif dx_score_num <= 0.95:
+                return 3
+            elif dx_score_num <= 0.97:
+                return 4
+            else:
+                return 5
+        else:
+            return 0
+
 
 class SongDifficultyUtage:
     # 铺面属性
