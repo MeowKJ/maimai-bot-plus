@@ -28,9 +28,10 @@ class DrawText:
         stroke_width: int = 0,
         stroke_fill: Tuple[int, int, int, int] = (0, 0, 0, 0),
         multiline: bool = False,
+        font: ImageFont.FreeTypeFont = None,
     ):
-
-        font = ImageFont.truetype(self._font, size)
+        if font is None:
+            font = ImageFont.truetype(self._font, size)
         if multiline:
             self._img.multiline_text(
                 (pos_x, pos_y),

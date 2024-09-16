@@ -46,3 +46,6 @@ static/*
 # Pytest
 pytest.ini
 .pytest_cache/
+
+# Macos
+.DS_Store

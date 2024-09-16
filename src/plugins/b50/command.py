@@ -22,7 +22,7 @@ from src.libraries.assets import assets, AssetType
 from src.libraries.common.game.maimai import *
 
 from .tools import is_fish_else_lxns
-from .player import Player
+from .player import B50Player
 from .draw import DrawBest
 
 from botpy import logger
@@ -204,7 +204,7 @@ async def handle_b50(message: Message):
         )
         return
 
-    player = Player(
+    player = B50Player(
         username,
         user_id,
         favorite_id=favorite_id,
@@ -256,7 +256,7 @@ async def handle_b50(message: Message):
 
     # 更新用户分数到数据库
     try:
-        update_user_score(user_id, player.rating)
+        update_user_score(user_id, player.user_info.rating)
     except DatabaseOperationError as e:
         logger.error(f"更新用户时出错: {e}")
         return

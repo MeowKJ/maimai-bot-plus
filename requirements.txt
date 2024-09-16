@@ -11,3 +11,4 @@ pytest
 pytest-asyncio
 plotly
 kaleido
+pandas

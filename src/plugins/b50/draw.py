@@ -1,14 +1,29 @@
-import math
+import math, random
 import aiohttp
 from io import BytesIO
 from typing import Tuple, Union, overload
 
-from PIL import Image, ImageDraw
+
+from PIL import Image, ImageDraw, ImageFont
 from src.libraries.assets import assets, AssetType
+from src.libraries.common.images.alpha import (
+    adjust_image_alpha,
+    add_rounded_corners_to_image,
+    deepen_image_color,
+)
+from src.libraries.common.images.text import (
+    draw_centered_text,
+    draw_centered_truncated_text,
+    draw_truncated_text,
+)
+
+from src.libraries.common.images.components.user_info import draw_user_info
+
+from src.libraries.common.game.maimai import SongRateType
 from .image import DrawText
 from .basic import *
-from config import FontPaths, VERSION
-from .player import Player, SongDifficulty
+from config import FontPaths, VERSION, DEFAULT_AVATAR_URL
+from .player import B50Player, SongDifficulty
 
 
 class Draw:
@@ -23,7 +38,6 @@ class Draw:
         self.basic = Image.open(
             assets.get(AssetType.IMAGES, "b50_score_basic")
         ).convert("RGBA")
-
         self.advanced = Image.open(
             assets.get(AssetType.IMAGES, "b50_score_advanced")
         ).convert("RGBA")
@@ -36,6 +50,7 @@ class Draw:
         self.remaster = Image.open(
             assets.get(AssetType.IMAGES, "b50_score_remaster")
         ).convert("RGBA")
+
         self.title_bg = (
             Image.open(assets.get(AssetType.IMAGES, "title2"))
             .convert("RGBA")
@@ -54,6 +69,12 @@ class Draw:
             self.master,
             self.remaster,
         ]
+
+        alpha = 0.6
+
+        for i in range(5):
+            img = deepen_image_color(self._diff[i], 1.5)
+            self._diff[i] = adjust_image_alpha(img, alpha)
 
     async def whiledraw(
         self,
@@ -94,17 +115,35 @@ class Draw:
                 .convert("RGBA")
             )
 
+            # rate sss和sss+的使用prism样式
             if info.user_score.rate:
-                rate = (
-                    Image.open(
-                        await assets.get_async(
-                            AssetType.IMAGES,
-                            f"UI_TTR_Rank_{score_Rank_l[info.user_score.rate.value]}.png",
+                if (
+                    info.user_score.rate == SongRateType.SSS
+                    or info.user_score.rate == SongRateType.SSS_PLUS
+                ):
+                    rate = (
+                        Image.open(
+                            await assets.get_async(
+                                AssetType.PRISM, f"{info.user_score.rate.value}.png"
+                            )
                         )
+                        .resize((95, 44))
+                        .convert("RGBA")
                     )
-                    .resize((95, 44))
-                    .convert("RGBA")
-                )
+
+                    rate = deepen_image_color(rate, 2)
+
+                else:
+                    rate = (
+                        Image.open(
+                            await assets.get_async(
+                                AssetType.IMAGES,
+                                f"UI_TTR_Rank_{score_Rank_l[info.user_score.rate.value]}.png",
+                            )
+                        )
+                        .resize((110, 44))
+                        .convert("RGBA")
+                    )
             self._im.alpha_composite(self._diff[info.level_index], (x, y))
             self._im.alpha_composite(cover, (x + 5, y + 5))
             self._im.alpha_composite(version, (x + 80, y + 141))
@@ -158,8 +197,8 @@ class Draw:
                 anchor="mm",
             )
             title = info.title
-            if coloumWidth(title) > 18:
-                title = changeColumnWidth(title, 17) + "..."
+            if coloumWidth(title) > 19:
+                title = changeColumnWidth(title, 18) + "..."
             self._sy.draw(
                 x + 155, y + 20, 20, title, TEXT_COLOR[info.level_index], anchor="lm"
             )
@@ -197,202 +236,88 @@ class Draw:
 
 class DrawBest(Draw):
 
-    def __init__(self, UserInfo: Player) -> None:
-        super().__init__(
-            Image.open(assets.get(AssetType.IMAGES, "b50_bg.png")).convert("RGBA")
-        )
-        self.userName = UserInfo.nickname
-        self.plate = UserInfo.name_plate
-        self.course_rank = UserInfo.course_rank
-        self.class_rank = UserInfo.class_rank
-        self.Rating = UserInfo.rating
-        self.sdBest = UserInfo.song_data_b35
-        self.dxBest = UserInfo.song_data_b15
-        self.avatar_id = UserInfo.avatar_id
-        self.avatar_url = UserInfo.avatar_url
-        self.favorite_id = UserInfo.favorite_id
+    def __init__(self, b50player: B50Player) -> None:
 
-    def _findRaPic(self) -> str:
-        if self.Rating < 1000:
-            num = "01"
-        elif self.Rating < 2000:
-            num = "02"
-        elif self.Rating < 4000:
-            num = "03"
-        elif self.Rating < 7000:
-            num = "04"
-        elif self.Rating < 10000:
-            num = "05"
-        elif self.Rating < 12000:
-            num = "06"
-        elif self.Rating < 13000:
-            num = "07"
-        elif self.Rating < 14000:
-            num = "08"
-        elif self.Rating < 14500:
-            num = "09"
-        elif self.Rating < 15000:
-            num = "10"
-        else:
-            num = "11"
-        return f"UI_CMN_DXRating_{num}.png"
+        background_image = random.choices(
+            ["b50_bg1-min.png", "b50_bg2-min.png", "b50_bg3-min.png"],
+            weights=[80, 10, 10],
+            k=1,
+        )[0]
+
+        super().__init__(
+            Image.open(assets.get(AssetType.PRISM, background_image)).convert("RGBA")
+        )
+        self.b50player = b50player
 
     async def draw(self) -> Image.Image:
 
-        x_offset = 0
-        if self.favorite_id == 0:
-            logo = (
-                Image.open(assets.get(AssetType.IMAGES, "logo.png"))
-                .resize((378, 228))
-                .convert("RGBA")
-            )
-            self._im.alpha_composite(logo, (5, 130))
-            x_offset = 0
+        # 绘制用户信息板子
+        default_plate_list = [
+            await assets.get_async(AssetType.PRISM, f"p{i}-min.png")
+            for i in range(1, 4)
+        ]
 
-        else:
-            logo = (
-                Image.open(
-                    assets.get(AssetType.ONGEKI, f"ongeki{self.favorite_id}.png")
-                )
-                .resize((int(220 * 1.2), int(290 * 1.2)))
-                .convert("RGBA")
-            )
-            self._im.alpha_composite(logo, (130, 25))
-            x_offset = 100
+        default_avatar_list = [
+            await assets.get_async(AssetType.PRISM, f"logo{i}.png") for i in range(1, 6)
+        ]
 
-        dx_rating = (
-            Image.open(assets.get(AssetType.IMAGES, self._findRaPic()))
-            .resize((300, 59))
-            .convert("RGBA")
-        )
-        Name = Image.open(await assets.get_async(AssetType.IMAGES, "Name.png")).convert(
-            "RGBA"
+        sdrating, dxrating = sum(
+            [_.user_score.rating for _ in self.b50player.song_data_b35]
+        ), sum([_.user_score.rating for _ in self.b50player.song_data_b15])
+
+        user_info_image = await draw_user_info(
+            self.b50player.user_info,
+            f"B35: {sdrating} + B15: {dxrating} = {self.b50player.user_info.rating}",
+            random.choice(default_plate_list),
+            random.choice(default_avatar_list),
         )
 
-        rating = (
+        self._im.alpha_composite(user_info_image, (500, 100))
+        # 绘制徽章
+        if self.b50player.favorite_id == 0:
+            self.b50player.favorite_id = random.randint(1, 17)
+
+        logo = (
             Image.open(
-                await assets.get_async(AssetType.IMAGES, "UI_CMN_Shougou_Rainbow.png")
+                assets.get(AssetType.ONGEKI, f"ongeki{self.b50player.favorite_id}.png")
             )
-            .resize((454, 50))
+            .resize((int(220 * 1.2), int(290 * 1.2)))
             .convert("RGBA")
         )
+        self._im.alpha_composite(logo, (130, 25))
 
-        if self.plate:
-
-            plate = (
-                Image.open(await assets.get_async(AssetType.PLATE, self.plate))
-                .resize((1420, 230))
-                .convert("RGBA")
-            )
-
-        else:
-            plate = (
-                Image.open(
-                    await assets.get_async(AssetType.IMAGES, "UI_Plate_300501.png")
-                )
-                .resize((1420, 230))
-                .convert("RGBA")
-            )
-
-        self._im.alpha_composite(plate, (x_offset + 390, 100))
-
-        # 头像
-        if self.avatar_id:
-
-            icon = (
-                Image.open(await assets.get_async(AssetType.AVATAR, self.avatar_id))
-                .resize((214, 214))
-                .convert("RGBA")
-            )
-        elif self.avatar_url:
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(self.avatar_url) as resp:
-                        icon = (
-                            Image.open(BytesIO(await resp.read()))
-                            .resize((214, 214))
-                            .convert("RGBA")
-                        )
-            except:
-                icon = (
-                    Image.open(await assets.get_async(AssetType.AVATAR, 1))
-                    .resize((214, 214))
-                    .convert("RGBA")
-                )
-        else:  # 默认头像
-            icon = (
-                Image.open(await assets.get_async(AssetType.AVATAR, 1))
-                .resize((214, 214))
-                .convert("RGBA")
-            )
-
-        self._im.alpha_composite(icon, (x_offset + 398, 108))
-        self._im.alpha_composite(dx_rating, (x_offset + 620, 122))
-        Rating = f"{self.Rating:05d}"
-        for n, i in enumerate(Rating):
-            self._im.alpha_composite(
-                Image.open(
-                    await assets.get_async(AssetType.IMAGES, f"UI_NUM_Drating_{i}.png")
-                )
-                .resize((28, 34))
-                .convert("RGBA"),
-                (x_offset + 760 + 23 * n, 137),
-            )
-
-        self._im.alpha_composite(Name, (x_offset + 620, 200))
-
-        if self.course_rank:
-            MatchLevel = (
-                Image.open(
-                    await assets.get_async(AssetType.COURSE_RANK, self.course_rank)
-                )
-                .resize((134, 55))
-                .convert("RGBA")
-            )
-            self._im.alpha_composite(MatchLevel, (x_offset + 935, 205))
-
-        if self.class_rank:
-
-            ClassLevel = (
-                Image.open(
-                    await assets.get_async(AssetType.CLASS_RANK, self.class_rank)
-                )
-                .resize((144, 87))
-                .convert("RGBA")
-            )
-            self._im.alpha_composite(ClassLevel, (x_offset + 926, 105))
-
-        self._im.alpha_composite(rating, (x_offset + 620, 275))
-
-        self._sy.draw(x_offset + 635, 235, 40, self.userName, (0, 0, 0, 255), "lm")
-        sdrating, dxrating = sum([_.user_score.rating for _ in self.sdBest]), sum(
-            [_.user_score.rating for _ in self.dxBest]
-        )
-        self._tb.draw(
-            x_offset + 847,
-            295,
-            28,
-            f"B35: {sdrating} + B15: {dxrating} = {self.Rating}",
-            (0, 0, 0, 255),
-            "mm",
-            3,
-            (255, 255, 255, 255),
-        )
+        # 绘制底部信息
+        footer_text_1 = f"Generated by Maimai Channel BOT [{VERSION}]"
+        footer_text_2 = f"Designed by Komo | Maimai的频道 | 频道号: 82f4ywfvrm"
         self._mr.draw(
-            900,
+            490,
             2465,
             35,
-            f"Designed by YuzuChaN | Generated by Maimai Channel BOT [{VERSION}]",
+            footer_text_2,
             (0, 50, 100, 255),
             "mm",
             3,
             (255, 255, 255, 255),
+            font=ImageFont.truetype(FontPaths.ZHIZI, 35),
         )
 
-        await self.whiledraw(self.sdBest, True)
-        await self.whiledraw(self.dxBest, False)
+        self._mr.draw(
+            1750,
+            2465,
+            35,
+            footer_text_1,
+            (0, 50, 100, 255),
+            "mm",
+            3,
+            (255, 255, 255, 255),
+            font=ImageFont.truetype(FontPaths.ZHIZI, 35),
+        )
 
-        return self._im.resize((1760, 2000))
+        await self.whiledraw(self.b50player.song_data_b35, True)
+        await self.whiledraw(self.b50player.song_data_b15, False)
+
+        self._im = add_rounded_corners_to_image(self._im, 35)
+        return self._im
 
 
 def getCharWidth(o) -> int:
@@ -459,87 +384,3 @@ def changeColumnWidth(s: str, len: int) -> str:
         if res <= len:
             sList.append(ch)
     return "".join(sList)
-
-
-@overload
-def computeRa(ds: float, achievements: float) -> int:
-    """
-    - `ds`: 定数
-    - `achievements`: 成绩
-    """
-
-
-@overload
-def computeRa(ds: float, achievements: float, *, onlyrate: bool = False) -> str:
-    """
-    - `ds`: 定数
-    - `achievements`: 成绩
-    - `onlyrate`: 返回评价
-    """
-
-
-@overload
-def computeRa(
-    ds: float, achievements: float, *, israte: bool = False
-) -> Tuple[int, str]:
-    """
-    - `ds`: 定数
-    - `achievements`: 成绩
-    - `israte`: 返回元组 (底分, 评价)
-    """
-
-
-def computeRa(
-    ds: float, achievements: float, *, onlyrate: bool = False, israte: bool = False
-) -> Union[int, Tuple[int, str]]:
-    if achievements < 50:
-        baseRa = 7.0
-        rate = "D"
-    elif achievements < 60:
-        baseRa = 8.0
-        rate = "C"
-    elif achievements < 70:
-        baseRa = 9.6
-        rate = "B"
-    elif achievements < 75:
-        baseRa = 11.2
-        rate = "BB"
-    elif achievements < 80:
-        baseRa = 12.0
-        rate = "BBB"
-    elif achievements < 90:
-        baseRa = 13.6
-        rate = "A"
-    elif achievements < 94:
-        baseRa = 15.2
-        rate = "AA"
-    elif achievements < 97:
-        baseRa = 16.8
-        rate = "AAA"
-    elif achievements < 98:
-        baseRa = 20.0
-        rate = "S"
-    elif achievements < 99:
-        baseRa = 20.3
-        rate = "Sp"
-    elif achievements < 99.5:
-        baseRa = 20.8
-        rate = "SS"
-    elif achievements < 100:
-        baseRa = 21.1
-        rate = "SSp"
-    elif achievements < 100.5:
-        baseRa = 21.6
-        rate = "SSS"
-    else:
-        baseRa = 22.4
-        rate = "SSSp"
-
-    if israte:
-        data = (math.floor(ds * (min(100.5, achievements) / 100) * baseRa), rate)
-    elif onlyrate:
-        data = rate
-    else:
-        data = math.floor(ds * (min(100.5, achievements) / 100) * baseRa)
-
-    return data

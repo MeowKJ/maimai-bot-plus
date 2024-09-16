@@ -40,6 +40,7 @@ class AssetType(Enum):
     ONGEKI = "/assets/ongeki/"
     SONGINFO = "/assets/songinfo/"
     JSON = "/assets/json/"
+    PRISM = "/assets/prism/"
 
 
 class JSONType(Enum):
@@ -210,7 +211,9 @@ class Assets:
         从URL下载文件 (异步)
         """
         logger.info(f"[ASSETS] 下载文件：{url}")
-        async with aiohttp.ClientSession(conn_timeout=60) as session:
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=30)
+        ) as session:
             async with session.get(url + get_args, proxy=proxy) as response:
                 if response.status != 200:
                     logger.warning(f"[ASSETS] 下载文件失败：{url}")

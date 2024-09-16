@@ -8,6 +8,7 @@ def draw_centered_text(
     text: str,
     font: ImageFont.ImageFont,
     fill: Tuple[int, int, int] = (0, 0, 0),
+    **kwargs,
 ) -> None:
     """
     绘制水平居中的文本。
@@ -31,7 +32,7 @@ def draw_centered_text(
     x = position[0] - text_width // 2
 
     # 绘制文本
-    draw.text((x, position[1]), text, font=font, fill=fill)
+    draw.text((x, position[1]), text, font=font, fill=fill, **kwargs)
 
 
 def draw_truncated_text(
@@ -41,6 +42,7 @@ def draw_truncated_text(
     font: ImageFont.ImageFont,
     max_width: int,
     fill: Tuple[int, int, int],
+    **kwargs,
 ) -> None:
     """
     绘制带省略号的文本，当文本超出指定宽度时自动截断。
@@ -74,7 +76,7 @@ def draw_truncated_text(
         text += ellipsis
 
     # 绘制文本
-    draw.text(position, text, font=font, fill=fill)
+    draw.text(position, text, font=font, fill=fill, **kwargs)
 
 
 def draw_centered_truncated_text(

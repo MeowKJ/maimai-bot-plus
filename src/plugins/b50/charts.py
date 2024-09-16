@@ -2,7 +2,7 @@ import plotly.express as px
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
-
+from config import FontPaths
 def generate_pie_chart():
     # 1. 使用 Plotly 生成饼图并保存在内存中
     labels = ["苹果", "香蕉", "橙子", "葡萄"]
