@@ -96,7 +96,6 @@ async def draw_user_info(
 
     # 3.绘制友人对战阶级(class_rank)
     class_rank_base_offset = (530, 8)
-    userinfo.class_rank = 1
     if userinfo.class_rank:
         class_level_img = (
             Image.open(
@@ -113,8 +112,10 @@ async def draw_user_info(
     name_image = Image.open(
         await assets.get_async(AssetType.IMAGES, "Name.png")
     ).convert("RGBA")
-
-    name_image = adjust_image_alpha(name_image, 0.6)
+    
+    # 如果没有自己的姓名框，就不做透明处理
+    if userinfo.nameplate_id:
+        name_image = adjust_image_alpha(name_image, 0.6)
 
     # 绘制姓名
     name_draw = ImageDraw.Draw(name_image)
