@@ -381,20 +381,27 @@ class GuessSongHandler:
                     color_counts = Counter(cropped_img.getdata())
                     most_common_color_count = color_counts.most_common(1)[0][1]
 
+                    # 检查裁剪区域是否颜色单一
                     if most_common_color_count / (length * width) < 0.95:
-                        temp_file = tempfile.mktemp(
-                            suffix=f"_{int(time.time())}_crop.png"
-                        )
-                        cropped_img.save(temp_file)
-                        self.temp_files.append(temp_file)
-                        return temp_file
+                        with tempfile.NamedTemporaryFile(
+                            suffix=f"_{int(time.time())}_crop.png", delete=False
+                        ) as temp_file:
+                            cropped_img.save(temp_file.name)
+                            self.temp_files.append(temp_file.name)
+                            return temp_file.name
 
-                temp_file = tempfile.mktemp(suffix=f"_{int(time.time())}_crop.png")
-                cropped_img.save(temp_file)
-                self.temp_files.append(temp_file)
-                return temp_file
+                # 如果所有尝试都不成功，返回最后一次裁剪结果
+                with tempfile.NamedTemporaryFile(
+                    suffix=f"_{int(time.time())}_crop.png", delete=False
+                ) as temp_file:
+                    cropped_img.save(temp_file.name)
+                    self.temp_files.append(temp_file.name)
+                    return temp_file.name
+
         except Exception as e:
-            logger.error(f"Error generating cover image: {str(e)}")
+            logger.error(
+                f"Error generating cover image for song {self.current_song['id']}: {str(e)}"
+            )
             await self.end_game("❌ 获取封面时出错，游戏结束。")
             return None
 
