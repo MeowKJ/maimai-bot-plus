@@ -112,9 +112,9 @@ async def draw_user_info(
     name_image = Image.open(
         await assets.get_async(AssetType.IMAGES, "Name.png")
     ).convert("RGBA")
-    
-    # 如果没有自己的姓名框，就不做透明处理
-    if userinfo.nameplate_id:
+
+    # 有自己的姓名框，就不做透明处理
+    if not userinfo.nameplate_id:
         name_image = adjust_image_alpha(name_image, 0.6)
 
     # 绘制姓名
