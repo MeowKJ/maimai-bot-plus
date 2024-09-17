@@ -1,0 +1,8 @@
+version: 2
+updates:
+  - package-ecosystem: "pip" # 指定 pip 作为包管理器
+    directory: "/" # 依赖文件（如 requirements.txt）所在的目录，根目录通常为 "/"
+    schedule:
+      interval: "weekly" # 每周检查更新
+    commit-message:
+      prefix: "[SECURITY]" # 提交消息前缀
