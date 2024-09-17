@@ -95,7 +95,8 @@ async def draw_user_info(
     main_image.alpha_composite(dx_rating_image, dx_rating_base_offset)
 
     # 3.绘制友人对战阶级(class_rank)
-    class_rank_base_offset = (1035, 110)
+    class_rank_base_offset = (530, 8)
+    userinfo.class_rank = 1
     if userinfo.class_rank:
         class_level_img = (
             Image.open(

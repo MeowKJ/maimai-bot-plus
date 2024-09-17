@@ -1,8 +1,4 @@
-import math, random
-import aiohttp
-from io import BytesIO
-from typing import Tuple, Union, overload
-
+import random
 
 from PIL import Image, ImageDraw, ImageFont
 from src.libraries.assets import assets, AssetType
