@@ -111,10 +111,14 @@ class Draw:
                 .convert("RGBA")
             )
 
-            # rate sss和sss+的使用prism样式
+            # rate s sp ss ssp sss和sss+的使用prism样式
             if info.user_score.rate:
                 if (
-                    info.user_score.rate == SongRateType.SSS
+                    info.user_score.rate == SongRateType.S
+                    or info.user_score.rate == SongRateType.S_PLUS
+                    or info.user_score.rate == SongRateType.SS
+                    or info.user_score.rate == SongRateType.SS_PLUS
+                    or info.user_score.rate == SongRateType.SSS
                     or info.user_score.rate == SongRateType.SSS_PLUS
                 ):
                     rate = (
